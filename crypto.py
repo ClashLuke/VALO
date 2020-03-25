@@ -1,15 +1,17 @@
 from hashlib import blake2b
-from ecpy.eddsa import EDDSA
+from ecpy.eddsa import EDDSA, ECPrivateKey
+from ecpy.curves import Curve
 from random import randint
 import pickle
 
 CRYPTO = EDDSA(blake2b)
+CURVE = Curve.get_curve('Curve448')
 
 
 def eddsa(public=None, private=None):
     if public is None:
-        private = randint(0, 2 ** 512)
-        public = CRYPTO.get_public_key(private)
+        private = ECPrivateKey(randint(0, 2 ** 512), CURVE)
+        public = private.get_public_key()
 
     def sign(msg):
         return CRYPTO.sign(msg, private)
@@ -17,8 +19,8 @@ def eddsa(public=None, private=None):
     def keys():
         return public, private
 
-    def verify(msg):
-        return CRYPTO.verify(msg, private)
+    def verify(msg, sig):
+        return CRYPTO.verify(msg, sig, public)
 
     return sign, verify, keys
 
