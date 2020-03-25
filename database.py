@@ -2,7 +2,7 @@ import pickle
 from redis import Redis
 
 DATABASE = Redis()
-CONNECTED_DATA_TYPES = ['wallet', 'block', 'transaction']
+CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
 
 
 def get_key(data_type: str, key: str):
@@ -23,6 +23,6 @@ def write(item: dict):
     key = item.pop('key')
     put(data_type, key, item)
     for item_key, item_value in item.items():
-        if item_key in CONNECTED_DATA_TYPES:
+        if item_key.startswith(CONNECTED_DATA_TYPES):
             put('connection', key, item_value)
             put('connection', item_value, key)
