@@ -14,7 +14,7 @@ def make(block_index, wallet, transactions, difficulty, timestamp=None, nonce=No
     diff //= difficulty
 
     def check(block_hash=None):
-        header_hash = crypto.hash(header)
+        header_hash = crypto.pickle_hash(header)
         return (utils.bytes_to_int(header_hash) < difficulty and
                 (block_hash is None or block_hash == header_hash))
 

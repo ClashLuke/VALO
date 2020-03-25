@@ -23,5 +23,5 @@ def eddsa(public=None, private=None):
     return sign, verify, keys
 
 
-def hash(obj):
+def pickle_hash(obj):
     return blake2b(pickle.dumps(obj, protocol=4)).digest()
