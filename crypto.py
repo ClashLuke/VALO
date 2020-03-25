@@ -24,4 +24,4 @@ def eddsa(public=None, private=None):
 
 
 def hash(obj):
-    return blake2b(pickle.dumps(obj, protocol=4))
+    return blake2b(pickle.dumps(obj, protocol=4)).digest()
