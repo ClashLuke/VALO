@@ -43,12 +43,12 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
     return sign, verify, store
 
 
-def block(block_index, wallet, transactions, difficulty, timestamp=None, nonce=None,
+def block(block_index, wallet, transactions, difficulty, block_previous, timestamp=None, nonce=None,
           signature=None, private_key=None):
     header = {'wallet':     wallet, 'transactions': transactions, 'nonce': nonce,
               'timestamp':  int(time.time()) if timestamp is None else timestamp,
               'difficulty': difficulty, 'block_index': block_index,
-              'signature':  signature
+              'signature':  signature, 'block_previous': block_previous
               }
 
     signer, verifier, _ = crypto.eddsa(wallet, private_key)
