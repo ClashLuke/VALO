@@ -15,6 +15,10 @@ REQUEST_TO_FUNCTION = {'read_block':       interface.read_block,
 
 def init_node():
     running = [True]
+    running_connections = []
+    successful_connections = []
+    failed_connections = []
+    mailbox = []
 
     request_to_function = REQUEST_TO_FUNCTION.copy()
     request_to_function['reply'] = interface.mailbox_handler(mailbox)
@@ -44,6 +48,15 @@ def init_node():
 
     thread = threading.Thread(target=handler)
     thread.start()
+
+    def add_connection(ip):
+        if ip not in failed_connections and ip not in successful_connections:
+            connection = active_node.add_node(ip, P2P_PORT, "passive")
+            if connection is None:
+                failed_connections.append(ip)
+            else:
+                successful_connections.append(ip)
+                running_connections.append(connection)
 
     def online(status):
         running[0] = status
