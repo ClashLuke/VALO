@@ -1,4 +1,5 @@
 import pickle
+
 from redis import Redis
 
 DATABASE = Redis()
@@ -18,11 +19,28 @@ def put(data_type: str, key: str, item: dict):
                  pickle.dumps(item, protocol=4))
 
 
-def write(item: dict):
-    data_type = item.pop('data_type')
-    key = item.pop('key')
+def append(data_type: str, key: str, item: dict):
+    previous = read(data_type, key)
+    item = [item]
+    if previous is not None:
+        item.extend(previous)
+    put(data_type, key, item)
+
+
+def write(item: dict, data_type=None, key=None):
+    if data_type is None:
+        data_type = item.pop('data_type')
+        key = item.pop('key')
     put(data_type, key, item)
     for item_key, item_value in item.items():
         if item_key.startswith(CONNECTED_DATA_TYPES):
-            put('connection', key, item_value)
-            put('connection', item_value, key)
+            append('connection', key, item_value)
+            append('connection', item_value, key)
+
+
+def add(data_type, key, amount):
+    DATABASE.incr(get_key(data_type, key), amount)
+
+
+def sub(data_type, key, amount):
+    DATABASE.decr(get_key(data_type, key), amount)
