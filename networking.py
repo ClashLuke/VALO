@@ -14,7 +14,7 @@ REQUEST_TO_FUNCTION = {'read_block':       interface.read_block,
 
 
 def init_node():
-    running = True
+    running = [True]
 
     request_to_function = REQUEST_TO_FUNCTION.copy()
     request_to_function['reply'] = interface.mailbox_handler(mailbox)
@@ -30,7 +30,7 @@ def init_node():
     active_node = start_node(P2P_PORT + 1)
 
     def handler():
-        while running:
+        while running[0]:
             for connection in passive_node:
                 for reply in connection:
                     try:
@@ -44,3 +44,6 @@ def init_node():
 
     thread = threading.Thread(target=handler)
     thread.start()
+
+    def online(status):
+        running[0] = status
