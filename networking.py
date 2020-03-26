@@ -88,3 +88,14 @@ def interface():
     def add_peers(peer_list):
         for peer in peer_list:
             add_connection(peer)
+
+    def request_block(block_index):
+        return send({'request_type': 'read_block', 'block_index': block_index},
+                    requires_answer=True)
+
+    def request_transaction(transaction_hash):
+        return send({'request_type':     'read_transaction',
+                     'transaction_hash': transaction_hash
+                     }, requires_answer=True)
+
+    return start, stop, add_peers, request_block, request_transaction
