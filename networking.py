@@ -60,3 +60,17 @@ def init_node():
 
     def online(status):
         running[0] = status
+
+    def send(message, connection_id=None, requires_answer=False):
+        if connection_id is None:
+            for connection in running_connections:
+                connection.send(message)
+        else:
+            running_connections[connection_id].send(message)
+        if not requires_answer:
+            return
+        while not mailbox:
+            time.sleep(1e-2)
+        return mailbox.pop(0)
+
+    return online, add_connection, send
