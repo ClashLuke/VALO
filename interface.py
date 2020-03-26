@@ -33,3 +33,10 @@ def add_mean_block_size(block_size):
     new_mean = (3 * old_mean + block_size) / 4
     database.write(new_mean, 'block_size', 'mean')
     return old_mean
+
+
+def mailbox_handler(mailbox):
+    def assign(data):
+        mailbox[0] = data
+        return False
+    return assign
