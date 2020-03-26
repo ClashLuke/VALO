@@ -1,5 +1,3 @@
-import pickle
-
 from redis import Redis
 
 DATABASE = Redis()

@@ -6,8 +6,8 @@ import time
 import config
 import crypto
 import database
-import utils
 import interface
+import utils
 
 
 def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
@@ -43,7 +43,8 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
     return sign, verify, store
 
 
-def block(block_index, wallet, transactions, difficulty, block_previous, timestamp=None, nonce=None,
+def block(block_index, wallet, transactions, difficulty, block_previous, timestamp=None,
+          nonce=None,
           signature=None, private_key=None):
     header = {'wallet':     wallet, 'transactions': transactions, 'nonce': nonce,
               'timestamp':  int(time.time()) if timestamp is None else timestamp,

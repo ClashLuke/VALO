@@ -1,8 +1,9 @@
-from hashlib import blake2b
-from ecpy.eddsa import EDDSA, ECPrivateKey
-from ecpy.curves import Curve
-from random import randint
 import pickle
+from hashlib import blake2b
+from random import randint
+
+from ecpy.curves import Curve
+from ecpy.eddsa import ECPrivateKey, EDDSA
 
 CRYPTO = EDDSA(blake2b)
 CURVE = Curve.get_curve('Curve448')

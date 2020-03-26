@@ -39,4 +39,5 @@ def mailbox_handler(mailbox):
     def assign(data):
         mailbox[0] = data
         return False
+
     return assign
