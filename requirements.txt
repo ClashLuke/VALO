@@ -1,3 +1,4 @@
 ecpy
 redis
 python>=3.7
+pyp2p
