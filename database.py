@@ -14,7 +14,7 @@ def read(data_type: str, key: str):
     return pickle.loads(DATABASE.get(get_key(data_type, key)))
 
 
-def put(data_type: str, key: str, item: dict):
+def put(data_type: str, key: str, item):
     DATABASE.set(get_key(data_type, key),
                  pickle.dumps(item, protocol=4))
 
