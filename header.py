@@ -1,7 +1,8 @@
-import crypto
-import time
-import utils
 import random
+import time
+
+import crypto
+import utils
 
 
 def make(block_index, wallet, transactions, difficulty, timestamp=None, nonce=None):
