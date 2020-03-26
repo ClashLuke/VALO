@@ -74,3 +74,17 @@ def init_node():
         return mailbox.pop(0)
 
     return online, add_connection, send
+
+
+def interface():
+    online, add_connection, send = init_node()
+
+    def start():
+        online(True)
+
+    def stop():
+        online(False)
+
+    def add_peers(peer_list):
+        for peer in peer_list:
+            add_connection(peer)
