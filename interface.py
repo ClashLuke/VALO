@@ -12,8 +12,8 @@ def verify_transaction(wallet_in, wallet_out, amount, index, signature):
     return verify(signature)
 
 
-def read_block(index):
-    block_hash = database.read('connection+block_index+block', index)
+def read_block(block_index):
+    block_hash = database.read('connection+block_index+block', block_index)
     if block_hash is None:
         return None
     return database.read('block', block_hash)
