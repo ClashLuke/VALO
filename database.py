@@ -11,12 +11,11 @@ def get_key(data_type: str, key: str):
 
 
 def read(data_type: str, key: str):
-    return pickle.loads(DATABASE.get(get_key(data_type, key)))
+    return DATABASE.get(get_key(data_type, key))
 
 
 def put(data_type: str, key: str, item):
-    DATABASE.set(get_key(data_type, key),
-                 pickle.dumps(item, protocol=4))
+    DATABASE.set(get_key(data_type, key), item)
 
 
 def append(data_type: str, key: str, item: dict):
