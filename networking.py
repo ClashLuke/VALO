@@ -77,7 +77,7 @@ def init_node():
     return online, add_connection, send
 
 
-def interface():
+def node_interface():
     online, add_connection, send = init_node()
 
     def start():
