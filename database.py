@@ -26,15 +26,16 @@ def append(data_type: str, key: str, item: dict):
     put(data_type, key, item)
 
 
-def write(item: dict, data_type=None, key=None):
+def write(item, data_type=None, key=None):
     if data_type is None:
         data_type = item.pop('data_type')
         key = item.pop('key')
     put(data_type, key, item)
-    for item_key, item_value in item.items():
-        if item_key.startswith(CONNECTED_DATA_TYPES):
-            append('connection', key, item_value)
-            append('connection', item_value, key)
+    if isinstance(item, dict):
+        for item_key, item_value in item.items():
+            if item_key.startswith(CONNECTED_DATA_TYPES):
+                put('+'.join(['connection', data_type, item_key]), key, item_value)
+                put('+'.join(['connection', item_key, data_type]), item_value, key)
 
 
 def add(data_type, key, amount):
