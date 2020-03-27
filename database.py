@@ -1,5 +1,5 @@
 from redis import Redis
-import pickle
+import jsonpickle
 
 DATABASE = Redis()
 CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
@@ -13,11 +13,11 @@ def read(data_type: str, key: str):
     return_value = DATABASE.get(get_key(data_type, key))
     if return_value is None:
         return None
-    return pickle.loads(return_value)
+    return jsonpickle.loads(return_value)
 
 
 def put(data_type: str, key: str, item):
-    DATABASE.set(get_key(data_type, key), pickle.dumps(item, protocol=4))
+    DATABASE.set(get_key(data_type, key), jsonpickle.dumps(item))
 
 
 def append(item: dict, data_type: str, key: str):
