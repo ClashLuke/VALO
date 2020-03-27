@@ -1,3 +1,4 @@
+import random
 import threading
 import time
 
@@ -62,10 +63,12 @@ def init_node():
     def online(status):
         running[0] = status
 
-    def send(message, connection_id=None, requires_answer=False):
+    def send(message, connection_id=False, requires_answer=False):
         if connection_id is None:
             for connection in running_connections:
                 connection.send(message)
+        elif connection_id is False:
+            random.choice(running_connections).send(message)
         else:
             running_connections[connection_id].send(message)
         if not requires_answer:
@@ -92,11 +95,9 @@ def node_interface():
 
     def request_block(block_index):
         return send({'request_type': 'read_block', 'block_index': block_index},
-                    requires_answer=True)
+                    False, True)
 
     def request_transaction(transaction_hash):
         return send({'request_type':     'read_transaction',
                      'transaction_hash': transaction_hash
-                     }, requires_answer=True)
-
-    return start, stop, add_peers, request_block, request_transaction
+                     }, False, True)
