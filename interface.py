@@ -53,3 +53,27 @@ def mailbox_handler(mailbox):
         return False
 
     return assign
+
+
+def send_block(header):
+    networking.BASE_NODE.send_block(**header)
+    store_block(**header)
+
+
+def mine_top(wallet, private_key):
+    height = block_height()
+    last_hash = block_hash_at_index(height - 1)
+    start_height = height - config.LWMA_WINDOW - 1
+    if start_height < 0 or last_hash is None:
+        difficulty = 1
+    else:
+        recent_blocks = [read_block(idx) for idx in range(start_height, height)]
+        recent_blocks = [(block['timestamp'], block['difficulty']) for block in
+                         recent_blocks]
+        timestamps, difficulties = list(zip(*recent_blocks))
+        difficulty = utils.next_difficulty(timestamps, difficulties)
+
+    check_hash, mine, verify, store = datatypes.block(height, wallet, [], difficulty,
+                                                      last_hash,
+                                                      private_key=private_key)
+    mine(True, send_block)
