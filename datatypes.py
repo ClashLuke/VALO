@@ -11,7 +11,7 @@ import utils
 
 
 def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
-                private_key=None):
+                private_key=None, cache=False):
     transaction_dict = {'wallet_in': wallet_in, 'wallet_out': wallet_out,
                         'amount':    amount, 'index': index
                         }
@@ -36,9 +36,12 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
 
     def store(signature: bytes):
         if validated[0] or (validated[0] is None and verify(signature)):
-            database.write(transaction_dict, 'transaction', transaction_hash[0])
-            database.sub('wallet', wallet_in, amount)
-            database.add('wallet', wallet_out, amount)
+            if cache:
+                database.append(transaction_dict, 'transaction', 'cache')
+            else:
+                database.write(transaction_dict, 'transaction', transaction_hash[0])
+                database.sub('wallet', wallet_in, amount)
+                database.add('wallet', wallet_out, amount)
 
     return sign, verify, store
 

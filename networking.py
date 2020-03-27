@@ -8,7 +8,7 @@ from config import P2P_PORT
 
 REQUEST_TO_FUNCTION = {'read_block':       interface.read_block,
                        'read_transaction': interface.read_transaction,
-                       'add_transaction':  interface.store_transaction,
+                       'add_transaction':  interface.store_unverified_transaction,
                        'add_block':        interface.store_block,
                        'reply':            None
                        }

@@ -2,8 +2,9 @@ import database
 import datatypes
 
 
-def store_transaction(wallet_in, wallet_out, amount, index, signature):
-    _, _, store = datatypes.transaction(wallet_in, wallet_out, amount, index)
+def store_unverified_transaction(wallet_in, wallet_out, amount, index, signature):
+    _, _, store = datatypes.transaction(wallet_in, wallet_out, amount, index,
+                                        cache=True)
     store(signature)
 
 
