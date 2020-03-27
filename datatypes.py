@@ -91,18 +91,18 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         sign()
         return crypto.pickle_hash(header)
 
-    def mining_handler():
+    def mining_handler(callback):
         header_hash = random_hash()
         threading.Thread(target=add_transactions).start()
         while mining[0] and check_hash(header_hash):
             header_hash = random_hash()
         mining[0] = False
-        return header
+        callback(header)
 
-    def mine(state):
+    def mine(state, callback=None):
         mining[0] = state
         if state and not mining_thread:
-            mining_thread[0] = threading.Thread(target=mining_handler)
+            mining_thread[0] = threading.Thread(target=mining_handler, args=(callback,))
             mining_thread[0].start()
         elif not state and mining_thread:
             del mining_thread[0]
