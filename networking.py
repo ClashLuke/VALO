@@ -80,49 +80,50 @@ def init_node():
     return online, add_connection, send
 
 
-def node_interface():
-    online, add_connection, send = init_node()
+class Node:
+    def __init__(self):
+        self.online, self.add_connection, self.send = init_node()
 
-    def start():
-        online(True)
+    def start(self):
+        self.online(True)
 
-    def stop():
-        online(False)
+    def stop(self):
+        self.online(False)
 
-    def add_peers(peer_list):
+    def add_peers(self, peer_list):
         for peer in peer_list:
-            add_connection(peer)
+            self.add_connection(peer)
 
-    def request_block(block_index):
-        return send({'request_type': 'read_block', 'block_index': block_index},
-                    False, True)
+    def request_block(self, block_index):
+        return self.send({'request_type': 'read_block', 'block_index': block_index},
+                         False, True)
 
-    def request_transaction(transaction_hash):
-        return send({'request_type':     'read_transaction',
-                     'transaction_hash': transaction_hash
-                     }, False, True)
+    def request_transaction(self, transaction_hash):
+        return self.send({'request_type':     'read_transaction',
+                          'transaction_hash': transaction_hash
+                          }, False, True)
 
-    def send_block(block_index, wallet, transactions, difficulty, block_previous,
+    def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
-        send({'request_type':   'add_block',
-              'block_index':    block_index,
-              'wallet':         wallet,
-              'transactions':   transactions,
-              'difficulty':     difficulty,
-              'block_previous': block_previous,
-              'timestamp':      timestamp,
-              'nonce':          nonce,
-              'signature':      signature
-              }, True, False)
+        self.send({'request_type':   'add_block',
+                   'block_index':    block_index,
+                   'wallet':         wallet,
+                   'transactions':   transactions,
+                   'difficulty':     difficulty,
+                   'block_previous': block_previous,
+                   'timestamp':      timestamp,
+                   'nonce':          nonce,
+                   'signature':      signature
+                   }, True, False)
 
-    def send_transaction(wallet_in, wallet_out, amount, index, signature):
-        send({'request_type': 'add_transaction',
-              'wallet_in':    wallet_in,
-              'wallet_out':   wallet_out,
-              'amount':       amount,
-              'index':        index,
-              'signature':    signature
-              }, True, False)
+    def send_transaction(self, wallet_in, wallet_out, amount, index, signature):
+        self.send({'request_type': 'add_transaction',
+                   'wallet_in':    wallet_in,
+                   'wallet_out':   wallet_out,
+                   'amount':       amount,
+                   'index':        index,
+                   'signature':    signature
+                   }, True, False)
 
-    return (start, stop, add_peers, request_block, request_transaction, send_block,
-            send_transaction)
+
+BASE_NODE = Node()
