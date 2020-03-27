@@ -26,7 +26,10 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
     def verify(signature: bytes):
         if not verifier(crypto.pickle_hash(transaction_dict), signature):
             return False
-        if not database.read('wallet', wallet_in) >= amount:
+        try:
+            if not database.read('wallet', wallet_in) >= amount:
+                return False
+        except TypeError:
             return False
         tx_hash = crypto.pickle_hash(transaction_dict)
         if database.read('transaction', tx_hash) is not None:
