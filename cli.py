@@ -13,11 +13,12 @@ def main():
     def help():
         print(f"Possible operations are: {str(list(operations.keys()))[1:-1]}")
 
-
     operations['mine'] = mine
     operations['?'] = help
     operations['help'] = help
     operations['exit'] = exit
+    operations['height'] = interface.block_height()
+    operations['keypair'] = interface.keypair()
 
     while True:
         user_input = input(">> ")
