@@ -69,6 +69,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     diff = 2 ** 512 - 1
     diff //= difficulty
     mining = [False]
+    mining_thread = []
 
     def add_transactions():
         while mining[0]:
@@ -86,13 +87,20 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         sign()
         return crypto.pickle_hash(header)
 
-    def mine():
+    def mining_handler():
         header_hash = random_hash()
         threading.Thread(target=add_transactions).start()
-        mining[0] = True
-        while check_hash(header_hash):
+        while mining[0] and check_hash(header_hash):
             header_hash = random_hash()
+        mining[0] = False
         return header
+
+    def mine(state):
+        mining[0] = state
+        if state and not mining_thread:
+            mining_thread[0] = threading.Thread(target=mining_handler).start()
+        elif not state and mining_thread:
+            del mining_thread[0]
 
     def verify():
         block_hash = check_hash(crypto.pickle_hash(header))
