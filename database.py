@@ -1,4 +1,5 @@
 from redis import Redis
+import pickle
 
 DATABASE = Redis()
 CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
@@ -9,11 +10,14 @@ def get_key(data_type: str, key: str):
 
 
 def read(data_type: str, key: str):
-    return DATABASE.get(get_key(data_type, key))
+    return_value = DATABASE.get(get_key(data_type, key))
+    if return_value is None:
+        return None
+    return pickle.loads(return_value)
 
 
 def put(data_type: str, key: str, item):
-    DATABASE.set(get_key(data_type, key), item)
+    DATABASE.set(get_key(data_type, key), pickle.dumps(item, protocol=4))
 
 
 def append(item: dict, data_type: str, key: str):
