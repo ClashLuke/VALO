@@ -42,3 +42,11 @@ def add(data_type, key, amount):
 
 def sub(data_type, key, amount):
     DATABASE.decr(get_key(data_type, key), amount)
+
+
+def init():
+    if read('block_size', 'mean') is None:
+        write(0, 'block_size', 'mean')
+    write([], 'transaction', 'cache')
+    write([], 'transaction', 'mined')
+    write(0, 'block_height', 'main')
