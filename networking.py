@@ -122,7 +122,15 @@ class Node:
                    }, True, False)
 
 
-try:
-    BASE_NODE = Node()
-except AttributeError:
-    pass
+class BaseNode:
+    def __init__(self):
+        self._node = None
+
+    @property
+    def node(self):
+        if self._node is None:
+            self._node = Node()
+        return self._node
+
+
+BASE_NODE = BaseNode()

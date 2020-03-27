@@ -57,7 +57,7 @@ def mailbox_handler(mailbox):
 
 
 def send_block(header):
-    networking.BASE_NODE.send_block(**header)
+    networking.BASE_NODE.node.send_block(**header)
     store_block(**header)
 
 
