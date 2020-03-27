@@ -110,7 +110,7 @@ class Node:
                    'timestamp':      timestamp,
                    'nonce':          nonce,
                    'signature':      signature
-                   }, True, False)
+                   }, None, False)
 
     def send_transaction(self, wallet_in, wallet_out, amount, index, signature):
         self.send({'request_type': 'add_transaction',
@@ -119,7 +119,7 @@ class Node:
                    'amount':       amount,
                    'index':        index,
                    'signature':    signature
-                   }, True, False)
+                   }, None, False)
 
 
 class BaseNode:
