@@ -1,12 +1,10 @@
 import random
-import threading
 import time
-
-import pyp2p.net as net
 
 import interface
 from config import P2P_PORT
-import config
+from peerstack.peer import Peer
+
 
 def init_node():
     running = [True]
@@ -20,36 +18,12 @@ def init_node():
                            'add_block':        interface.store_block,
                            'reply':            interface.mailbox_handler(mailbox)
                            }
-
-    def start_node(port):
-        node = net.Net(passive_port=port, node_type='passive', servers=config.SEEDS)
-        node.start()
-        node.bootstrap()
-        node.advertise()
-        return node
-
-    passive_node = start_node(P2P_PORT)
-    active_node = start_node(P2P_PORT + 1)
-
-    def handler():
-        while running[0]:
-            for connection in passive_node:
-                for reply in connection:
-                    try:
-                        function = request_to_function.get(reply.pop('request_type'))
-                        answer = function(**reply)
-                        if answer is not False:
-                            connection.send({'request_type': 'reply', 'data': answer})
-                    except Exception as exc:
-                        print(f'{exc.__class__.__name__} occured with message "{exc}"')
-                        continue
-
-    thread = threading.Thread(target=handler)
-    thread.start()
+    node = Peer("0.0.0.0", P2P_PORT)
+    node.add_route_dict(request_to_function)
 
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
-            connection = active_node.add_node(ip, P2P_PORT, "passive")
+            connection = Peer(ip, P2P_PORT)
             if connection is None:
                 failed_connections.append(ip)
             else:
