@@ -99,7 +99,8 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     def mine(state):
         mining[0] = state
         if state and not mining_thread:
-            mining_thread[0] = threading.Thread(target=mining_handler).start()
+            mining_thread[0] = threading.Thread(target=mining_handler)
+            mining_thread[0].start()
         elif not state and mining_thread:
             del mining_thread[0]
 
