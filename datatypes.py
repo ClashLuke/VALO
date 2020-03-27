@@ -109,8 +109,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             del mining_thread[0]
 
     def _verify():
-        block_hash = check_hash(crypto.pickle_hash(header))
-        if not check_hash(block_hash):
+        if not check_hash(crypto.pickle_hash(header)):
             return False
         header['signature'] = None
         if not verifier(crypto.pickle_hash(header), signature):
