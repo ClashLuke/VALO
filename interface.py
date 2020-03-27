@@ -1,4 +1,5 @@
 import config
+import crypto
 import database
 import datatypes
 import networking
@@ -58,6 +59,20 @@ def mailbox_handler(mailbox):
 def send_block(header):
     networking.BASE_NODE.send_block(**header)
     store_block(**header)
+
+
+def keypair():
+    private = database.read('keypair', 'private')
+    if private is None:
+        _, _, keygen = crypto.eddsa()
+        public, private = keygen()
+        database.write(public, 'keypair', 'public')
+        database.write(private, 'keypair', 'private')
+
+    else:
+        public = database.read('keypair', 'public')
+
+    return public, private
 
 
 def mine_top(wallet, private_key):
