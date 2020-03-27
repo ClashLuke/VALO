@@ -7,6 +7,7 @@ import config
 import crypto
 import database
 import interface
+import threading
 import utils
 
 
@@ -46,7 +47,8 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
     return sign, verify, store
 
 
-def block(block_index, wallet, transactions, difficulty, block_previous, timestamp=None,
+def block(block_index, wallet, transactions: list, difficulty, block_previous,
+          timestamp=None,
           nonce=None,
           signature=None, private_key=None):
     header = {'wallet':     wallet, 'transactions': transactions, 'nonce': nonce,
@@ -66,6 +68,15 @@ def block(block_index, wallet, transactions, difficulty, block_previous, timesta
 
     diff = 2 ** 512 - 1
     diff //= difficulty
+    mining = [False]
+
+    def add_transactions():
+        while mining[0]:
+            new_transactions = database.read('transaction', 'cache')
+            transactions.append(new_transactions)
+            database.write([], 'transaction', 'cache')
+            database.append(new_transactions, 'transaction', 'mined')
+            time.sleep(1)
 
     def check_hash(header_hash):
         return utils.bytes_to_int(header_hash) < difficulty
@@ -77,6 +88,8 @@ def block(block_index, wallet, transactions, difficulty, block_previous, timesta
 
     def mine():
         header_hash = random_hash()
+        threading.Thread(target=add_transactions).start()
+        mining[0] = True
         while check_hash(header_hash):
             header_hash = random_hash()
         return header
