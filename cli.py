@@ -1,3 +1,6 @@
+import inspect
+import time
+
 import database
 import interface
 
@@ -10,23 +13,43 @@ def main():
     def mine():
         interface.mine_top(public, private)
 
-    def help():
-        print(f"Possible operations are: {str(list(operations.keys()))[1:-1]}")
+    def get_help():
+        operations_string = str(list(operations.keys()))[1:-1].replace("'", "")
+        return f"Possible operations are: {operations_string}"
+
+    def loop(function_name, pause):
+        function = operations[function_name]
+        pause = float(pause)
+        while True:
+            value = function()
+            if value is not None:
+                print(value)
+            time.sleep(pause)
 
     operations['mine'] = mine
-    operations['?'] = help
-    operations['help'] = help
+    operations['?'] = get_help
+    operations['help'] = get_help
     operations['exit'] = exit
     operations['height'] = interface.block_height
     operations['keypair'] = interface.keypair
+    operations['loop'] = loop
 
     while True:
         user_input = input(">> ")
-        user_input = user_input.lower()
+        function_name, *args = user_input.lower().split(' ')
+        value = None
         try:
-            operations[user_input]()
+            function = operations[function_name]
         except KeyError:
-            help()
+            function = get_help
+        try:
+            value = function(*args)
+        except TypeError:
+            print(f"{function_name} expected "
+                  f"{len(inspect.signature(function).parameters)} arguments. Got "
+                  f"{len(args)}.")
+        if value is not None:
+            print(value)
 
 
 if __name__ == '__main__':
