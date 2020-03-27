@@ -1,5 +1,8 @@
+import config
 import database
 import datatypes
+import networking
+import utils
 
 
 def store_unverified_transaction(wallet_in, wallet_out, amount, index, signature):
@@ -13,8 +16,12 @@ def verify_transaction(wallet_in, wallet_out, amount, index, signature):
     return verify(signature)
 
 
+def block_hash_at_index(block_index):
+    return database.read('connection+block_index+block', block_index)
+
+
 def read_block(block_index):
-    block_hash = database.read('connection+block_index+block', block_index)
+    block_hash = block_hash_at_index(block_index)
     if block_hash is None:
         return None
     return database.read('block', block_hash)
@@ -34,6 +41,10 @@ def add_mean_block_size(block_size):
     new_mean = (3 * old_mean + block_size) / 4
     database.write(new_mean, 'block_size', 'mean')
     return old_mean
+
+
+def block_height():
+    return database.read('block_height', 'main')
 
 
 def mailbox_handler(mailbox):
