@@ -1,13 +1,13 @@
 import pickle
 import random
 import sys
+import threading
 import time
 
 import config
 import crypto
 import database
 import interface
-import threading
 import utils
 
 
@@ -70,6 +70,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     diff //= difficulty
     mining = [False]
     mining_thread = []
+    verified = [None]
 
     def add_transactions():
         while mining[0]:
@@ -102,7 +103,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         elif not state and mining_thread:
             del mining_thread[0]
 
-    def verify():
+    def _verify():
         block_hash = check_hash(crypto.pickle_hash(header))
         if not check_hash(block_hash):
             return False
@@ -118,6 +119,11 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             if not transactions[i][0]():
                 return False
         return True
+
+    def verify():
+        if verified[0] is None:
+            verified[0] = _verify()
+        return verified[0]
 
     def store():
         if verify():
