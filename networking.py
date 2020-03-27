@@ -101,3 +101,28 @@ def node_interface():
         return send({'request_type':     'read_transaction',
                      'transaction_hash': transaction_hash
                      }, False, True)
+
+    def send_block(block_index, wallet, transactions, difficulty, block_previous,
+                   timestamp, nonce, signature):
+        send({'request_type':   'add_block',
+              'block_index':    block_index,
+              'wallet':         wallet,
+              'transactions':   transactions,
+              'difficulty':     difficulty,
+              'block_previous': block_previous,
+              'timestamp':      timestamp,
+              'nonce':          nonce,
+              'signature':      signature
+              }, True, False)
+
+    def send_transaction(wallet_in, wallet_out, amount, index, signature):
+        send({'request_type': 'add_transaction',
+              'wallet_in':    wallet_in,
+              'wallet_out':   wallet_out,
+              'amount':       amount,
+              'index':        index,
+              'signature':    signature
+              }, True, False)
+
+    return (start, stop, add_peers, request_block, request_transaction, send_block,
+            send_transaction)
