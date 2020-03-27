@@ -16,7 +16,7 @@ def put(data_type: str, key: str, item):
     DATABASE.set(get_key(data_type, key), item)
 
 
-def append(data_type: str, key: str, item: dict):
+def append(item: dict, data_type: str, key: str):
     previous = read(data_type, key)
     item = [item]
     if previous is not None:
