@@ -113,7 +113,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         if database.read('connection+block_index+block', block_index) is not None:
             return False
         header['signature'] = signature
-        for i in range(transactions):
+        for i in range(len(transactions)):
             transactions[i] = transaction(**transactions[i])
             if not transactions[i][0]():
                 return False
