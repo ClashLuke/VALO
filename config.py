@@ -8,6 +8,8 @@ UNIT = 10 ** 6
 BLOCK_TIME = 120
 LWMA_WINDOW = 90
 
+SEEDS = [{"addr": "127.0.0.1", "port": 8000}]
+
 
 def reward_function(block_index, block_size, old_mean):
     size_factor = block_size / min(1, abs(block_size - old_mean)) ** 1.5

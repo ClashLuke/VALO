@@ -6,7 +6,7 @@ import pyp2p.net as net
 
 import interface
 from config import P2P_PORT
-
+import config
 
 def init_node():
     running = [True]
@@ -22,7 +22,7 @@ def init_node():
                            }
 
     def start_node(port):
-        node = net.Net(passive_port=port, node_type='passive')
+        node = net.Net(passive_port=port, node_type='passive', servers=config.SEEDS)
         node.start()
         node.bootstrap()
         node.advertise()
