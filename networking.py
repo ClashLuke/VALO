@@ -7,13 +7,6 @@ import pyp2p.net as net
 import interface
 from config import P2P_PORT
 
-REQUEST_TO_FUNCTION = {'read_block':       interface.read_block,
-                       'read_transaction': interface.read_transaction,
-                       'add_transaction':  interface.store_unverified_transaction,
-                       'add_block':        interface.store_block,
-                       'reply':            None
-                       }
-
 
 def init_node():
     running = [True]
@@ -21,9 +14,12 @@ def init_node():
     successful_connections = []
     failed_connections = []
     mailbox = []
-
-    request_to_function = REQUEST_TO_FUNCTION.copy()
-    request_to_function['reply'] = interface.mailbox_handler(mailbox)
+    request_to_function = {'read_block':       interface.read_block,
+                           'read_transaction': interface.read_transaction,
+                           'add_transaction':  interface.store_unverified_transaction,
+                           'add_block':        interface.store_block,
+                           'reply':            interface.mailbox_handler(mailbox)
+                           }
 
     def start_node(port):
         node = net.Net(passive_port=port, node_type='passive')
@@ -40,7 +36,7 @@ def init_node():
             for connection in passive_node:
                 for reply in connection:
                     try:
-                        function = REQUEST_TO_FUNCTION.get(reply.pop('request_type'))
+                        function = request_to_function.get(reply.pop('request_type'))
                         answer = function(**reply)
                         if answer is not False:
                             connection.send({'request_type': 'reply', 'data': answer})
@@ -126,4 +122,7 @@ class Node:
                    }, True, False)
 
 
-BASE_NODE = Node()
+try:
+    BASE_NODE = Node()
+except AttributeError:
+    pass
