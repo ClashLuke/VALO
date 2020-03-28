@@ -26,6 +26,9 @@ def main():
                 print(value)
             time.sleep(pause)
 
+    def balance(address=public):
+        return database.read('wallet', address) / config.UNIT
+
     operations['mine'] = mine
     operations['?'] = get_help
     operations['help'] = get_help
@@ -33,6 +36,7 @@ def main():
     operations['height'] = interface.block_height
     operations['keypair'] = interface.keypair
     operations['loop'] = loop
+    operations['balance'] = balance
 
     while True:
         user_input = input(">> ")
