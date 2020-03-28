@@ -56,7 +56,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
           signature=None, private_key=None):
     header = {'wallet':     wallet, 'transactions': transactions, 'nonce': nonce,
               'timestamp':  int(time.time()) if timestamp is None else timestamp,
-              'difficulty': difficulty, 'block_index': block_index,
+              'difficulty': difficulty, 'block_index': str(block_index),
               'signature':  signature, 'block_previous': block_previous
               }
 
