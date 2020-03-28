@@ -13,4 +13,4 @@ SEEDS = [{"addr": "127.0.0.1", "port": 8000}]
 
 def reward_function(block_index, block_size, old_mean):
     size_factor = block_size / min(1, abs(block_size - old_mean)) ** 1.5
-    return size_factor * UNIT / math.log2(2 + block_index)
+    return size_factor * UNIT / math.log2(2 + int(block_index))
