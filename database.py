@@ -1,5 +1,5 @@
-from redis import Redis
 import jsonpickle
+from redis import Redis
 
 DATABASE = Redis()
 CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
@@ -28,6 +28,11 @@ def append(item: dict, data_type: str, key: str):
     put(data_type, key, item)
 
 
+def put_connection(data_type, key, item_key, item_value):
+    put('+'.join(['connection', data_type, item_key]), key, item_value)
+    put('+'.join(['connection', item_key, data_type]), item_value, key)
+
+
 def write(item, data_type=None, key=None):
     if data_type is None:
         data_type = item.pop('data_type')
@@ -36,8 +41,11 @@ def write(item, data_type=None, key=None):
     if isinstance(item, dict):
         for item_key, item_value in item.items():
             if item_key.startswith(CONNECTED_DATA_TYPES):
-                put('+'.join(['connection', data_type, item_key]), key, item_value)
-                put('+'.join(['connection', item_key, data_type]), item_value, key)
+                if isinstance(item_value, list):
+                    for value in item_value:
+                        put_connection(data_type, key, item_key, value)
+                else:
+                    put_connection(data_type, key, item_key, item_value)
 
 
 def add(data_type, key, amount):
