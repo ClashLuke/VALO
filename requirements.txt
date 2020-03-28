@@ -1,4 +1,4 @@
-ecpy
+pynacl
 redis
 python>=3.7
 jsonpickle
