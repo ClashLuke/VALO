@@ -78,7 +78,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     def add_transactions():
         while mining[0]:
             new_transactions = database.read('transaction', 'cache')
-            transactions.append(new_transactions)
+            transactions.extend(new_transactions)
             database.write([], 'transaction', 'cache')
             database.append(new_transactions, 'transaction', 'mined')
             time.sleep(1)
