@@ -92,8 +92,6 @@ def mine_top(wallet, private_key):
                          recent_blocks]
         timestamps, difficulties = list(zip(*recent_blocks))
         difficulty = utils.next_difficulty(timestamps, difficulties)
-
-    check_hash, mine, verify, store = datatypes.block(height, wallet, [], difficulty,
-                                                      last_hash,
-                                                      private_key=private_key)
+    _, mine, _, _ = datatypes.block(height, wallet, [], difficulty, last_hash,
+                                    private_key=private_key)
     mine(True, send_block)
