@@ -69,7 +69,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     if signature is None:
         sign()
 
-    diff = 2 ** 512 - 1
+    diff = 2 ** 256 - 1
     diff //= difficulty
     mining = [False]
     mining_thread = []
@@ -87,7 +87,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         return utils.bytes_to_int(header_hash) < difficulty
 
     def random_hash():
-        header['nonce'] = random.randint(0, 2 ** 512)
+        header['nonce'] = random.randint(0, 2 ** 256)
         sign()
         return crypto.pickle_hash(header)
 
