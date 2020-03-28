@@ -14,7 +14,7 @@ import utils
 def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
                 private_key=None, cache=False):
     transaction_dict = {'wallet_in': wallet_in, 'wallet_out': wallet_out,
-                        'amount':    amount, 'index': index
+                        'amount':    amount, 'index': index, 'data_type': 'transaction'
                         }
     signer, verifier, _ = crypto.eddsa(wallet_in, private_key)
     validated = [None]
@@ -94,7 +94,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     def mining_handler(callback):
         header_hash = random_hash()
         threading.Thread(target=add_transactions).start()
-        while mining[0] and check_hash(header_hash):
+        while mining[0] and not check_hash(header_hash):
             header_hash = random_hash()
         mining[0] = False
         callback(header)
@@ -115,7 +115,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         if not verifier(crypto.pickle_hash(header), signature):
             header['signature'] = signature
             return False
-        if database.read('connection+block_index+block', block_index) is not None:
+        if database.read('connection+block_index+block', str(block_index)) is not None:
             return False
         header['signature'] = signature
         for i, tx in enumerate(transactions):
@@ -132,7 +132,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     def store():
         if verify():
-            database.write(header, 'block', crypto.pickle_hash(header))
+            database.write(header, 'block', crypto.pickle_hash(header).decode(errors='ignore'))
             for tx in transactions:
                 tx[2]()
             block_size = sys.getsizeof(pickle.dumps(header, protocol=4))
