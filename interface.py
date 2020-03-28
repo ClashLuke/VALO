@@ -84,8 +84,8 @@ def mine_top(wallet, private_key):
     height = block_height()
     last_hash = block_hash_at_index(height - 1)
     start_height = height - config.LWMA_WINDOW - 1
-    if start_height < 0 or last_hash is None:
-        difficulty = 1
+    if start_height < 1 or last_hash is None:
+        difficulty = 5000
     else:
         recent_blocks = [read_block(idx) for idx in range(start_height, height)]
         recent_blocks = [(block['timestamp'], block['difficulty']) for block in
