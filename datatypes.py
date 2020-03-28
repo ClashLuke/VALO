@@ -84,7 +84,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             time.sleep(1)
 
     def check_hash(header_hash):
-        return utils.bytes_to_int(header_hash) < difficulty
+        return utils.bytes_to_int(header_hash) < diff
 
     def random_hash():
         header['nonce'] = random.randint(0, 2 ** 256)
