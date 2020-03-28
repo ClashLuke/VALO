@@ -59,7 +59,6 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
               'difficulty': difficulty, 'block_index': str(block_index),
               'signature':  signature, 'block_previous': block_previous
               }
-
     signer, verifier, _ = crypto.eddsa(wallet, private_key)
 
     def sign():
@@ -132,7 +131,9 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     def store():
         if verify():
-            database.write(header, 'block', crypto.pickle_hash(header).decode(errors='ignore'))
+            database.write(header,
+                           'block',
+                           crypto.pickle_hash(header).decode(errors='ignore'))
             for tx in transactions:
                 tx[2]()
             block_size = sys.getsizeof(pickle.dumps(header, protocol=4))
