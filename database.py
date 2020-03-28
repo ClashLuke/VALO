@@ -49,11 +49,11 @@ def write(item, data_type=None, key=None):
 
 
 def add(data_type, key, amount):
-    DATABASE.incr(get_key(data_type, key), amount)
+    DATABASE.incr(get_key(data_type, key), int(amount))
 
 
 def sub(data_type, key, amount):
-    DATABASE.decr(get_key(data_type, key), amount)
+    DATABASE.decr(get_key(data_type, key), int(amount))
 
 
 def init():
