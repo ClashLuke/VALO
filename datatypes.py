@@ -124,10 +124,9 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         if database.read('connection+block_index+block', str(block_index)) is not None:
             return False
         header['signature'] = signature
-        for i, tx in enumerate(transactions):
+        for tx in transactions:
             if not isinstance(tx, dict):
-                raise UserWarning()
-
+                raise UserWarning
             if not transaction(**tx)[1]():
                 return False
         return True
