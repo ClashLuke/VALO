@@ -4,12 +4,13 @@ import time
 import jsonpickle
 
 
-def receive_all(connection):
-    data = True
+def receive_all(connection, buffer_size=2 ** 10):
     result = []
-    while data:
-        data = connection.recv(2 ** 10)
+    while True:
+        data = connection.recv(buffer_size)
         result.append(data)
+        if len(data) < buffer_size:
+            break
     result = b''.join(result).decode()
     return jsonpickle.loads(result)
 
@@ -39,7 +40,8 @@ class Peer:
                     self.log_file.write(
                             ' '.join(['Exception of type', exc.__class__.__name__,
                                       'occured at', str(int(time.time())),
-                                      '(unix timestamp) containing', exc, 'as data\n']))
+                                      '(unix timestamp) containing', str(exc),
+                                      'as data\n']))
 
     def send(self, message, ip):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
