@@ -3,3 +3,4 @@ redis
 python>=3.7
 jsonpickle
 gevent
+zstandard

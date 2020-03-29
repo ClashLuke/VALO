@@ -1,7 +1,7 @@
 import socket
 import time
 
-import jsonpickle
+import utils
 
 
 def receive_all(connection, buffer_size=2 ** 10):
@@ -12,7 +12,7 @@ def receive_all(connection, buffer_size=2 ** 10):
         if len(data) < buffer_size:
             break
     result = b''.join(result).decode()
-    return jsonpickle.loads(result)
+    return utils.loads(result)
 
 
 class Peer:
@@ -34,7 +34,7 @@ class Peer:
                     result = receive_all(connection)
                     request_type = result.pop('request_type')
                     value = self.routes[request_type](**result)
-                    value = jsonpickle.dumps(value).encode()
+                    value = utils.dumps(value)
                     connection.sendall(value)
                     if active_connections is not None:
                         active_connections.add(host_ip)
@@ -48,7 +48,7 @@ class Peer:
     def send(self, message, ip):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.connect((ip, self.port))
-            sock.sendall(jsonpickle.dumps(message).encode())
+            sock.sendall(utils.dumps(message))
             return receive_all(sock)
 
     def register_routes(self, routes: dict):

@@ -1,3 +1,6 @@
+import jsonpickle
+import zstandard as zstd
+
 import config
 
 
@@ -21,3 +24,13 @@ def next_difficulty(timestamps: list, target_difficulties: list):
 
 def ping():
     return "pong"
+
+
+def dumps(obj):
+    pickled_obj = jsonpickle.dumps(obj).encode()
+    return zstd.ZstdCompressor(level=19).compress(pickled_obj)
+
+
+def loads(obj):
+    uncompressed = zstd.ZstdDecompressor().decompress(obj).decode(errors='ignore')
+    return jsonpickle.loads(uncompressed)
