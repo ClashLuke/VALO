@@ -52,13 +52,13 @@ def init_node():
                                            args=(successful_connections,))
             listener[0].start()
 
-    def send(message, connection_id=False):
-        if connection_id is None:
-            return [node.send(message, connection) for connection in
-                    successful_connections]
-        if connection_id is False:
+    def send(message, connection_ip=False):
+        if connection_ip is None:
+            return {connection: node.send(message, connection) for connection in
+                    successful_connections}
+        if connection_ip is False:
             return node.send(message, random.sample(successful_connections, 1)[0])
-        return node.send(message, successful_connections[connection_id])
+        return node.send(message, connection_ip)
 
     any(add_connection(peer) for peer in interface.active_peers())
 
@@ -88,11 +88,10 @@ class Node:
         if not heights:
             print("Unable to connect to nodes. Skipping synchronization.")
             return
-        height = max(heights)
-        height_argmax = heights.index(height)
+        ip = max(heights, key=heights.get)
         any(interface.store_block(
                 **self.send({'request_type': 'read_block', 'block_index': i},
-                            height_argmax)) for i in range(height))
+                            ip)) for i in range(heights[ip]))
 
     def sync_loop(self):
         while self.syncing:
