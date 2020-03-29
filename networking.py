@@ -79,7 +79,8 @@ class Node:
         self.add_peers()
         heights = self.send({'request_type': 'read_height'}, None)
         if not heights:
-            print("Unable to connect to nodes.")
+            print("Unable to connect to nodes. Skipping synchronization.")
+            return
         height = max(heights)
         height_argmax = heights.index(height)
         any(interface.store_block(
