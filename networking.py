@@ -72,18 +72,18 @@ class Node:
 
     def add_peers(self, peer_list: list = None):
         if peer_list is None:
-            peer_list = self.send({'request_type': 'read_peers'}, None, True)
+            peer_list = self.send({'request_type': 'read_peers'}, None)
         for peer in peer_list:
             self.add_connection(peer)
 
     def request_block(self, block_index):
         return self.send({'request_type': 'read_block', 'block_index': block_index},
-                         False, True)
+                         False)
 
     def request_transaction(self, transaction_hash):
         return self.send({'request_type':     'read_transaction',
                           'transaction_hash': transaction_hash
-                          }, False, True)
+                          }, False)
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
@@ -97,7 +97,7 @@ class Node:
                    'timestamp':      timestamp,
                    'nonce':          nonce,
                    'signature':      signature
-                   }, None, False)
+                   }, None)
 
     def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
                          data_type=None):  # skipcq
@@ -116,7 +116,7 @@ class Node:
                    'amount':       amount,
                    'index':        index,
                    'signature':    signature
-                   }, None, False)
+                   }, None)
 
 
 class BaseNode:
