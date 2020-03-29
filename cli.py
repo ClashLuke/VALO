@@ -3,10 +3,13 @@ import time
 
 import database
 import interface
+import networking
 
 
 def main():
     database.init()
+    networking.BASE_NODE.node.start()
+
     operations = {}
 
 
