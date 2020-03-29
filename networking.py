@@ -119,8 +119,7 @@ class Node:
                           'transaction_hash': transaction_hash
                           }, False)
 
-    def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
-                   timestamp, nonce, signature):
+    def send_block(self, wallet, transactions, timestamp, nonce, signature, **kwargs):
         self.send({'request_type': 'add_block',
                    'wallet':       wallet,
                    'transactions': transactions,
