@@ -106,7 +106,7 @@ def mine_top():
 
 
 def transact(wallet_out, amount):
-    amount = int(amount)
+    amount = float(amount) * config.UNIT
     wallet, private_key = keypair()
     index = database.read('sent', 'transactions')
     sign, _, store = datatypes.transaction(wallet, wallet_out, amount, index,
