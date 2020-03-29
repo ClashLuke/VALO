@@ -1,5 +1,6 @@
 import jsonpickle
 from redis import Redis
+import crypto
 
 DATABASE = Redis()
 CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
@@ -29,6 +30,13 @@ def append(item: dict, data_type: str, key: str):
 
 
 def put_connection(data_type, key, item_key, item_value):
+    if isinstance(item_value, dict):
+        value = crypto.pickle_hash(item_value).decode(errors='ignore')
+        if 'data_type' in item_value:
+            write(item_value, item_value.pop('data_type'), value)
+        else:
+            print(item_value)
+        item_value = value
     put('+'.join(['connection', data_type, item_key]), key, item_value)
     put('+'.join(['connection', item_key, data_type]), item_value, key)
 
@@ -63,3 +71,4 @@ def init():
     write([], 'transaction', 'mined')
     write([], 'peer', 'white')
     write(0, 'block_height', 'main')
+    write(0, 'sent', 'transactions')
