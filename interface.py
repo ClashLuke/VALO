@@ -61,7 +61,7 @@ def mailbox_handler(mailbox):
 
 
 def send_block(header):
-    networking.BASE_NODE.node.send_block(**header)
+    networking.BASE_NODE.node().send_block(**header)
     store_block(**header)
 
 
@@ -122,7 +122,7 @@ def transact(wallet_out, amount):
     database.add('sent', 'transactions', 1)
     del transaction['data_type']
 
-    networking.BASE_NODE.node.send_transaction(**transaction)
+    networking.BASE_NODE.node().send_transaction(**transaction)
 
 
 def balance(address=None):

@@ -8,7 +8,7 @@ import networking
 
 def main():
     database.init()
-    networking.BASE_NODE.node.start()
+    networking.BASE_NODE.node()
 
     operations = {}
 
