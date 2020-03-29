@@ -16,6 +16,7 @@ def init_node():
     request_to_function = {'read_peers':       interface.active_peers,
                            'read_block':       interface.read_block,
                            'read_transaction': interface.read_transaction,
+                           'read_height':      interface.block_height,
                            'add_transaction':  interface.store_unverified_transaction,
                            'add_block':        interface.store_block,
                            'ping':             utils.ping,
@@ -51,14 +52,19 @@ def init_node():
 
     def send(message, connection_id=False):
         if connection_id is None:
-            for connection in successful_connections:
-                node.send(message, connection)
-            return None
+            return [node.send(message, connection) for connection in
+                    successful_connections]
         if connection_id is False:
             return node.send(message, random.sample(successful_connections, 1)[0])
         return node.send(message, successful_connections[connection_id])
 
     any(add_connection(peer) for peer in interface.active_peers())
+
+    heights = send({'request_type': 'read_height'}, None)
+    height = max(heights)
+    height_argmax = heights.index(height)
+    any(interface.store_block(**send({'request_type': 'read_block', 'block_index': i},
+                                     height_argmax)) for i in range(height))
 
     return online, add_connection, send
 
