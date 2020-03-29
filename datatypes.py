@@ -21,7 +21,6 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
     signer, verifier, _ = crypto.eddsa(wallet_in, private_key)
     validated = [None]
     transaction_hash = [None]
-    signature = [signature]
 
     def sign():
         transaction_dict['signature'] = signer(crypto.pickle_hash(transaction_dict))
