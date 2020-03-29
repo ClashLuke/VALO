@@ -96,7 +96,17 @@ class Node:
                                 'signature':      signature
                                 }, None, False)
 
-    def send_transaction(self, wallet_in, wallet_out, amount, index, signature):
+    def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
+                         data_type=None):
+        """
+        :param wallet_in: public address funds come from
+        :param wallet_out: public address funds go to
+        :param amount: amount of funds (in atomic units) to be sent
+        :param index: unique index of transaction for user
+        :param signature: signature of transaction hash
+        :param data_type: Supressed keywordargument
+        :return: None
+        """
         self.send('add_transaction', {'wallet_in':  wallet_in,
                                       'wallet_out': wallet_out,
                                       'amount':     amount,

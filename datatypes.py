@@ -13,7 +13,8 @@ import utils
 
 def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
                 private_key=None, cache=False, signature=None, data_type='transaction'):
-    assert data_type == 'transaction'
+    if data_type != 'transaction':
+        raise UserWarning
     transaction_dict = {'wallet_in': wallet_in, 'wallet_out': wallet_out,
                         'amount':    amount, 'index': index, 'data_type': 'transaction',
                         'signature': signature

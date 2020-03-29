@@ -9,14 +9,13 @@ import utils
 
 
 def store_unverified_transaction(wallet_in, wallet_out, amount, index, signature):
-    _, _, store = datatypes.transaction(wallet_in, wallet_out, amount, index,
-                                        cache=True)
-    store(signature)
+    datatypes.transaction(wallet_in, wallet_out, amount, index, signature=signature,
+                          cache=True)[2]()
 
 
 def verify_transaction(wallet_in, wallet_out, amount, index, signature):
-    _, verify, _ = datatypes.transaction(wallet_in, wallet_out, amount, index)
-    return verify(signature)
+    datatypes.transaction(wallet_in, wallet_out, amount, index, signature=signature,
+                          cache=True)[1]()
 
 
 def block_hash_at_index(block_index):
