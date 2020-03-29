@@ -32,6 +32,7 @@ def main():
     operations['loop'] = loop
     operations['balance'] = interface.balance
     operations['send'] = interface.transact
+    operations['address'] = interface.public_key
 
     while True:
         user_input = input(">> ")
