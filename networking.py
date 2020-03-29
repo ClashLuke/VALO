@@ -75,24 +75,28 @@ class Node:
     def start(self):
         self.online(True)
         self.syncing = True
-        self.sync_thread = threading.Thread(target=self.sync, daemon=True)
+        self.sync_thread = threading.Thread(target=self.sync_loop, daemon=True)
+        self.sync_thread.start()
 
     def stop(self):
         self.online(False)
         self.syncing = False
 
-    def sync(self):
+    def single_sync(self):
+        self.add_peers()
+        heights = self.send({'request_type': 'read_height'}, None)
+        if not heights:
+            print("Unable to connect to nodes. Skipping synchronization.")
+            return
+        height = max(heights)
+        height_argmax = heights.index(height)
+        any(interface.store_block(
+                **self.send({'request_type': 'read_block', 'block_index': i},
+                            height_argmax)) for i in range(height))
+
+    def sync_loop(self):
         while self.syncing:
-            self.add_peers()
-            heights = self.send({'request_type': 'read_height'}, None)
-            if not heights:
-                print("Unable to connect to nodes. Skipping synchronization.")
-                return
-            height = max(heights)
-            height_argmax = heights.index(height)
-            any(interface.store_block(
-                    **self.send({'request_type': 'read_block', 'block_index': i},
-                                height_argmax)) for i in range(height))
+            self.single_sync()
             time.sleep(config.SYNC_INTERVAL)
 
     def add_peers(self, peers: list = None):
