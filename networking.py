@@ -9,8 +9,8 @@ from peering import Peer
 
 
 def init_node():
-    successful_connections = []
-    failed_connections = []
+    successful_connections = set()
+    failed_connections = set()
     mailbox = {}
     request_to_function = {'read_peers':       interface.active_peers,
                            'read_block':       interface.read_block,
@@ -31,10 +31,9 @@ def init_node():
         if ip not in failed_connections and ip not in successful_connections:
             response = node.send({'request_type': 'ping'}, ip)
             if response:
-                database.append(ip, "peer", "white")
-                successful_connections.append(ip)
+                successful_connections.add(ip)
             else:
-                failed_connections.append(ip)
+                failed_connections.add(ip)
 
     def online(status):
         if listener and not status:
@@ -49,7 +48,7 @@ def init_node():
                 node.send(message, connection)
             return None
         if connection_id is False:
-            return node.send(message, random.choice(successful_connections))
+            return node.send(message, random.sample(successful_connections, 1)[0])
         return node.send(message, successful_connections[connection_id])
 
     any(add_connection(peer) for peer in interface.active_peers())
