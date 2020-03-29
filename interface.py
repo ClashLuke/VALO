@@ -54,8 +54,8 @@ def block_height():
 
 
 def mailbox_handler(mailbox):
-    def assign(data):
-        mailbox[0] = data
+    def assign(request_type, data):
+        mailbox[request_type] = data
         return False
 
     return assign

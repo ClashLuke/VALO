@@ -3,6 +3,7 @@ import time
 
 import database
 import interface
+import utils
 from config import P2P_PORT
 from peerstack.peer import Peer
 
@@ -12,41 +13,50 @@ def init_node():
     running_connections = []
     successful_connections = []
     failed_connections = []
-    mailbox = []
+    mailbox = {}
     request_to_function = {'read_block':       interface.read_block,
                            'read_transaction': interface.read_transaction,
                            'add_transaction':  interface.store_unverified_transaction,
                            'add_block':        interface.store_block,
-                           'reply':            interface.mailbox_handler(mailbox)
+                           'ping':             utils.ping
                            }
+    request_to_function = {key: utils.reply_wrapper(function) for key, function in
+                           request_to_function.items()}
+    request_to_function['reply'] = interface.mailbox_handler(mailbox)
+
     node = Peer("0.0.0.0", P2P_PORT)
     node.add_route_dict(request_to_function)
 
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
             connection = Peer(ip, P2P_PORT)
-            if connection is None:
-                failed_connections.append(ip)
-            else:
+            node.send(connection, 'ping', {})
+            time.sleep(1)
+            if 'ping' in mailbox:
+                del mailbox['ping']
+                database.append(ip, "peer", "white")
                 successful_connections.append(ip)
                 running_connections.append(connection)
+            else:
+                failed_connections.append(ip)
 
     def online(status):
         running[0] = status
 
-    def send(message, connection_id=False, requires_answer=False):
+    def send(request_type, message, connection_id=False, requires_answer=False):
         if connection_id is None:
             for connection in running_connections:
-                connection.send(message)
+                node.send(connection, request_type, message)
         elif connection_id is False:
-            random.choice(running_connections).send(message)
+            node.send(random.choice(running_connections), request_type, message)
         else:
-            running_connections[connection_id].send(message)
+            node.send(running_connections[connection_id], request_type, message)
         if not requires_answer:
             return
-        while not mailbox:
+        while request_type not in mailbox:
             time.sleep(1e-2)
-        return mailbox.pop(0)
+        return mailbox.pop(request_type)
+
     map(add_connection, database.read('peer', 'white'))
 
     return online, add_connection, send
@@ -67,35 +77,32 @@ class Node:
             self.add_connection(peer)
 
     def request_block(self, block_index):
-        return self.send({'request_type': 'read_block', 'block_index': block_index},
+        return self.send('read_block', {'block_index': block_index},
                          False, True)
 
     def request_transaction(self, transaction_hash):
-        return self.send({'request_type':     'read_transaction',
-                          'transaction_hash': transaction_hash
-                          }, False, True)
+        return self.send('read_transaction', {'transaction_hash': transaction_hash
+                                              }, False, True)
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
-        self.send({'request_type':   'add_block',
-                   'block_index':    block_index,
-                   'wallet':         wallet,
-                   'transactions':   transactions,
-                   'difficulty':     difficulty,
-                   'block_previous': block_previous,
-                   'timestamp':      timestamp,
-                   'nonce':          nonce,
-                   'signature':      signature
-                   }, None, False)
+        self.send('add_block', {'block_index':    block_index,
+                                'wallet':         wallet,
+                                'transactions':   transactions,
+                                'difficulty':     difficulty,
+                                'block_previous': block_previous,
+                                'timestamp':      timestamp,
+                                'nonce':          nonce,
+                                'signature':      signature
+                                }, None, False)
 
     def send_transaction(self, wallet_in, wallet_out, amount, index, signature):
-        self.send({'request_type': 'add_transaction',
-                   'wallet_in':    wallet_in,
-                   'wallet_out':   wallet_out,
-                   'amount':       amount,
-                   'index':        index,
-                   'signature':    signature
-                   }, None, False)
+        self.send('add_transaction', {'wallet_in':  wallet_in,
+                                      'wallet_out': wallet_out,
+                                      'amount':     amount,
+                                      'index':      index,
+                                      'signature':  signature
+                                      }, None, False)
 
 
 class BaseNode:
