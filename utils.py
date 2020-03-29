@@ -17,3 +17,16 @@ def next_difficulty(timestamps: list, target_difficulties: list):
         solve_time_lwma = config.BLOCK_TIME * adjustment_factor // 3
     val = target_sum * adjustment_factor // solve_time_lwma
     return val
+
+
+def ping():
+    return "pong"
+
+
+def reply_wrapper(function):
+    def wrapped_function(_, message: dict):
+        request_type = message.pop('key')
+        value = function(**message)
+        return {'key': 'reply', 'request_type': request_type, 'data': value}
+
+    return wrapped_function
