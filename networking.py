@@ -1,6 +1,7 @@
 import random
 import time
 
+import database
 import interface
 from config import P2P_PORT
 from peerstack.peer import Peer
@@ -46,6 +47,7 @@ def init_node():
         while not mailbox:
             time.sleep(1e-2)
         return mailbox.pop(0)
+    map(add_connection, database.read('peer', 'white'))
 
     return online, add_connection, send
 

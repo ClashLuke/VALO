@@ -61,4 +61,5 @@ def init():
         write(0, 'block_size', 'mean')
     write([], 'transaction', 'cache')
     write([], 'transaction', 'mined')
+    write([], 'peer', 'white')
     write(0, 'block_height', 'main')
