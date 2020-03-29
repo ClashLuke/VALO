@@ -109,11 +109,8 @@ class Node:
                    timestamp, nonce, signature):
         print(block_index)
         self.send({'request_type':   'add_block',
-                   'block_index':    block_index,
                    'wallet':         wallet,
                    'transactions':   transactions,
-                   'difficulty':     difficulty,
-                   'block_previous': block_previous,
                    'timestamp':      timestamp,
                    'nonce':          nonce,
                    'signature':      signature

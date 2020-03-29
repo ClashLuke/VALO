@@ -59,9 +59,7 @@ def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
 
 
 def block(block_index, wallet, transactions: list, difficulty, block_previous,
-          timestamp=None,
-          nonce=None,
-          signature=None, private_key=None):
+          timestamp=None, nonce=None, signature=None, private_key=None):
     header = {'wallet':     wallet, 'transactions': transactions, 'nonce': nonce,
               'timestamp':  int(time.time()) if timestamp is None else timestamp,
               'difficulty': difficulty, 'block_index': str(block_index),
@@ -139,8 +137,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     def store():
         if verify():
-            database.write(header,
-                           'block',
+            database.write(header, 'block',
                            crypto.pickle_hash(header).decode(errors='ignore'))
             for tx in transactions:
                 transaction(**tx)[2]()
@@ -151,3 +148,11 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             database.add('block_height', 'main', 1)
 
     return check_hash, mine, verify, store
+
+
+def top_block(wallet, transactions: list, timestamp=None, nonce=None,
+              signature=None, private_key=None, **kwargs):
+    index = interface.block_height()
+    return block(index, wallet, transactions, interface.difficulty_at_index(index),
+                 interface.block_hash_at_index(index), timestamp, nonce, signature,
+                 private_key)

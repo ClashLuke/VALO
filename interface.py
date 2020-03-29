@@ -37,7 +37,7 @@ def read_transaction(transaction_hash):
 
 
 def store_block(*args, **kwargs):
-    _, _, _, store = datatypes.block(*args, **kwargs)
+    _, _, _, store = datatypes.top_block(*args, **kwargs)
     store()
 
 
@@ -90,21 +90,22 @@ def public_key():
     return public
 
 
+def difficulty_at_index(index):
+    start_height = index - config.LWMA_WINDOW - 1
+    if start_height < 1:
+        return 5000
+    recent_blocks = [read_block(idx) for idx in range(start_height, index)]
+    if not all(recent_blocks):
+        raise UserWarning("Index too high.")
+    recent_blocks = [(block['timestamp'], block['difficulty']) for block in
+                     recent_blocks]
+    timestamps, difficulties = list(zip(*recent_blocks))
+    return utils.next_difficulty(timestamps, difficulties)
+
+
 def mine_top():
     wallet, private_key = keypair()
-    height = block_height()
-    last_hash = block_hash_at_index(height - 1)
-    start_height = height - config.LWMA_WINDOW - 1
-    if start_height < 1 or last_hash is None:
-        difficulty = 5000
-    else:
-        recent_blocks = [read_block(idx) for idx in range(start_height, height)]
-        recent_blocks = [(block['timestamp'], block['difficulty']) for block in
-                         recent_blocks]
-        timestamps, difficulties = list(zip(*recent_blocks))
-        difficulty = utils.next_difficulty(timestamps, difficulties)
-    _, mine, _, _ = datatypes.block(height, wallet, [], difficulty, last_hash,
-                                    private_key=private_key)
+    _, mine, _, _ = datatypes.top_block(wallet, [], private_key=private_key)
     mine(True, send_block)
 
 
