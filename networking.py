@@ -14,7 +14,8 @@ def init_node():
     successful_connections = []
     failed_connections = []
     mailbox = {}
-    request_to_function = {'read_block':       interface.read_block,
+    request_to_function = {'read_peers':       interface.active_peers,
+                           'read_block':       interface.read_block,
                            'read_transaction': interface.read_transaction,
                            'add_transaction':  interface.store_unverified_transaction,
                            'add_block':        interface.store_block,
@@ -57,7 +58,7 @@ def init_node():
             time.sleep(1e-2)
         return mailbox.pop(request_type)
 
-    map(add_connection, database.read('peer', 'white'))
+    map(add_connection, interface.active_peers())
 
     return online, add_connection, send
 
@@ -72,7 +73,9 @@ class Node:
     def stop(self):
         self.online(False)
 
-    def add_peers(self, peer_list):
+    def add_peers(self, peer_list: list = None):
+        if peer_list is None:
+            peer_list = self.send('read_peers', {}, None, True)
         for peer in peer_list:
             self.add_connection(peer)
 

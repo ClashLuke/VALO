@@ -79,6 +79,10 @@ def keypair():
     return public, private
 
 
+def active_peers():
+    return database.read('peer', 'white')
+
+
 def public_key():
     public = database.read('keypair', 'public')
     if public is None:
