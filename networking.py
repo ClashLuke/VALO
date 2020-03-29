@@ -6,11 +6,10 @@ import database
 import interface
 import utils
 from config import P2P_PORT
-from peerstack.peer import Peer
+from peering import Peer
 
 
 def init_node():
-    running_connections = []
     successful_connections = []
     failed_connections = []
     mailbox = {}
@@ -26,21 +25,19 @@ def init_node():
     request_to_function['reply'] = interface.mailbox_handler(mailbox)
 
     node = Peer("0.0.0.0", P2P_PORT)
-    node.add_route_dict(request_to_function)
+    node.register_routes(request_to_function)
 
     listener = [threading.Thread(target=node.listen)]
     listener[0].start()
 
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
-            connection = Peer(ip, P2P_PORT)
-            node.send(connection, 'ping', {})
+            node.send(ip, {'request_type': 'ping'})
             time.sleep(1)
             if 'ping' in mailbox:
                 del mailbox['ping']
                 database.append(ip, "peer", "white")
                 successful_connections.append(ip)
-                running_connections.append(connection)
             else:
                 failed_connections.append(ip)
 
@@ -51,19 +48,14 @@ def init_node():
             listener[0] = threading.Thread(target=node.listen)
             listener[0].start()
 
-    def send(request_type, message, connection_id=False, requires_answer=False):
+    def send(message, connection_id=False):
         if connection_id is None:
-            for connection in running_connections:
-                node.send(connection, request_type, message)
-        elif connection_id is False:
-            node.send(random.choice(running_connections), request_type, message)
-        else:
-            node.send(running_connections[connection_id], request_type, message)
-        if not requires_answer:
-            return
-        while request_type not in mailbox:
-            time.sleep(1e-2)
-        return mailbox.pop(request_type)
+            for connection in successful_connections:
+                node.send(connection, message)
+            return None
+        if connection_id is False:
+            return node.send(random.choice(successful_connections), message)
+        return node.send(successful_connections[connection_id], message)
 
     any(add_connection(peer) for peer in interface.active_peers())
 
