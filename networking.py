@@ -1,7 +1,9 @@
 import atexit
 import random
 import threading
+import time
 
+import config
 import database
 import interface
 import utils
@@ -66,26 +68,32 @@ def init_node():
 class Node:
     def __init__(self):
         self.online, self.add_connection, self.send = init_node()
+        self.syncing = True
         self.start()
-        self.sync()
+        self.sync_thread = None
 
     def start(self):
         self.online(True)
+        self.syncing = True
+        self.sync_thread = threading.Thread(target=self.sync, daemon=True)
 
     def stop(self):
         self.online(False)
+        self.syncing = False
 
     def sync(self):
-        self.add_peers()
-        heights = self.send({'request_type': 'read_height'}, None)
-        if not heights:
-            print("Unable to connect to nodes. Skipping synchronization.")
-            return
-        height = max(heights)
-        height_argmax = heights.index(height)
-        any(interface.store_block(
-                **self.send({'request_type': 'read_block', 'block_index': i},
-                            height_argmax)) for i in range(height))
+        while self.syncing:
+            self.add_peers()
+            heights = self.send({'request_type': 'read_height'}, None)
+            if not heights:
+                print("Unable to connect to nodes. Skipping synchronization.")
+                return
+            height = max(heights)
+            height_argmax = heights.index(height)
+            any(interface.store_block(
+                    **self.send({'request_type': 'read_block', 'block_index': i},
+                                height_argmax)) for i in range(height))
+            time.sleep(config.SYNC_INTERVAL)
 
     def add_peers(self, peers: list = None):
         if peers is None:
@@ -107,12 +115,12 @@ class Node:
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
-        self.send({'request_type':   'add_block',
-                   'wallet':         wallet,
-                   'transactions':   transactions,
-                   'timestamp':      timestamp,
-                   'nonce':          nonce,
-                   'signature':      signature
+        self.send({'request_type': 'add_block',
+                   'wallet':       wallet,
+                   'transactions': transactions,
+                   'timestamp':    timestamp,
+                   'nonce':        nonce,
+                   'signature':    signature
                    }, None)
 
     def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
