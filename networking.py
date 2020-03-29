@@ -60,12 +60,6 @@ def init_node():
 
     any(add_connection(peer) for peer in interface.active_peers())
 
-    heights = send({'request_type': 'read_height'}, None)
-    height = max(heights)
-    height_argmax = heights.index(height)
-    any(interface.store_block(**send({'request_type': 'read_block', 'block_index': i},
-                                     height_argmax)) for i in range(height))
-
     return online, add_connection, send
 
 
@@ -78,6 +72,17 @@ class Node:
 
     def stop(self):
         self.online(False)
+
+    def sync(self):
+        self.add_peers()
+        heights = self.send({'request_type': 'read_height'}, None)
+        if not heights:
+            print("Unable to connect to nodes.")
+        height = max(heights)
+        height_argmax = heights.index(height)
+        any(interface.store_block(
+                **self.send({'request_type': 'read_block', 'block_index': i},
+                            height_argmax)) for i in range(height))
 
     def add_peers(self, peer_list: list = None):
         if peer_list is None:
