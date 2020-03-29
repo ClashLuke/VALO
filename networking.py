@@ -72,59 +72,60 @@ class Node:
 
     def add_peers(self, peer_list: list = None):
         if peer_list is None:
-            peer_list = self.send('read_peers', {}, None, True)
+            peer_list = self.send({'request_type': 'read_peers'}, None, True)
         for peer in peer_list:
             self.add_connection(peer)
 
     def request_block(self, block_index):
-        return self.send('read_block', {'block_index': block_index},
+        return self.send({'request_type': 'read_block', 'block_index': block_index},
                          False, True)
 
     def request_transaction(self, transaction_hash):
-        return self.send('read_transaction', {'transaction_hash': transaction_hash
-                                              }, False, True)
+        return self.send({'request_type':     'read_transaction',
+                          'transaction_hash': transaction_hash
+                          }, False, True)
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
         print(block_index)
-        self.send('add_block', {'block_index':    block_index,
-                                'wallet':         wallet,
-                                'transactions':   transactions,
-                                'difficulty':     difficulty,
-                                'block_previous': block_previous,
-                                'timestamp':      timestamp,
-                                'nonce':          nonce,
-                                'signature':      signature
-                                }, None, False)
+        self.send({'request_type':   'add_block',
+                   'block_index':    block_index,
+                   'wallet':         wallet,
+                   'transactions':   transactions,
+                   'difficulty':     difficulty,
+                   'block_previous': block_previous,
+                   'timestamp':      timestamp,
+                   'nonce':          nonce,
+                   'signature':      signature
+                   }, None, False)
 
-    def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
-                         data_type=None):  # skipcq
-        """
-        :param wallet_in: public address funds come from
-        :param wallet_out: public address funds go to
-        :param amount: amount of funds (in atomic units) to be sent
-        :param index: unique index of transaction for user
-        :param signature: signature of transaction hash
-        :param data_type: Supressed keywordargument
-        :return: None
-        """
-        self.send('add_transaction', {'wallet_in':  wallet_in,
-                                      'wallet_out': wallet_out,
-                                      'amount':     amount,
-                                      'index':      index,
-                                      'signature':  signature
-                                      }, None, False)
+        def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
+                             data_type=None):  # skipcq
+            """
+            :param wallet_in: public address funds come from
+            :param wallet_out: public address funds go to
+            :param amount: amount of funds (in atomic units) to be sent
+            :param index: unique index of transaction for user
+            :param signature: signature of transaction hash
+            :param data_type: Supressed keywordargument
+            :return: None
+            """
+            self.send({'request_type': 'add_transaction',
+                       'wallet_in':    wallet_in,
+                       'wallet_out':   wallet_out,
+                       'amount':       amount,
+                       'index':        index,
+                       'signature':    signature
+                       }, None, False)
 
+    class BaseNode:
+        def __init__(self):
+            self._node = None
 
-class BaseNode:
-    def __init__(self):
-        self._node = None
+        @property
+        def node(self):
+            if self._node is None:
+                self._node = Node()
+            return self._node
 
-    @property
-    def node(self):
-        if self._node is None:
-            self._node = Node()
-        return self._node
-
-
-BASE_NODE = BaseNode()
+    BASE_NODE = BaseNode()
