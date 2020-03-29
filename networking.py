@@ -87,10 +87,13 @@ class Node:
                 **self.send({'request_type': 'read_block', 'block_index': i},
                             height_argmax)) for i in range(height))
 
-    def add_peers(self, peer_list: list = None):
-        if peer_list is None:
-            peer_list = self.send({'request_type': 'read_peers'}, None)
-        for peer in peer_list:
+    def add_peers(self, peers: list = None):
+        if peers is None:
+            peer_list_list = self.send({'request_type': 'read_peers'}, None)
+            peers = set()
+            for peer_list in peer_list_list:
+                peers.update(peer_list)
+        for peer in peers:
             self.add_connection(peer)
 
     def request_block(self, block_index):
