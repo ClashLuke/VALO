@@ -1,4 +1,5 @@
 import random
+import threading
 import time
 
 import database
@@ -28,6 +29,8 @@ def init_node():
     node = Peer("0.0.0.0", P2P_PORT)
     node.add_route_dict(request_to_function)
 
+    listener = [threading.Thread(target=node.listen())]
+
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
             connection = Peer(ip, P2P_PORT)
@@ -42,7 +45,10 @@ def init_node():
                 failed_connections.append(ip)
 
     def online(status):
-        running[0] = status
+        if listener and not status:
+            del listener[0]
+        elif not listener and status:
+            listener[0] = threading.Thread(target=node.listen())
 
     def send(request_type, message, connection_id=False, requires_answer=False):
         if connection_id is None:
