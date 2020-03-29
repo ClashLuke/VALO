@@ -103,7 +103,10 @@ class Node:
             peer_list_list = self.send({'request_type': 'read_peers'}, None)
             peers = set()
             for peer_list in peer_list_list:
-                peers.update(peer_list)
+                if isinstance(peer_list, list):
+                    peers.update(peer_list)
+                elif isinstance(peer_list, str):
+                    peers.add(peer_list)
         for peer in peers:
             self.add_connection(peer)
 
