@@ -1,3 +1,4 @@
+import atexit
 import random
 import threading
 
@@ -27,6 +28,10 @@ def init_node():
     listener = [threading.Thread(target=node.listen, daemon=True,
                                  args=(successful_connections,))]
     listener[0].start()
+
+    @atexit.register
+    def cleanup():
+        database.put('peer', 'white', list(successful_connections))
 
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
