@@ -66,6 +66,8 @@ def init_node():
 class Node:
     def __init__(self):
         self.online, self.add_connection, self.send = init_node()
+        self.start()
+        self.sync()
 
     def start(self):
         self.online(True)
