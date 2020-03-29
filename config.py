@@ -3,12 +3,12 @@ RPC_PORT = 61337
 
 UNIT = 10 ** 6
 
-BLOCK_TIME = 120
+BLOCK_TIME = 30
 LWMA_WINDOW = 90
 
 REDUCTION_FACTOR = 2 ** 20
 
-SEEDS = [{"addr": "127.0.0.1", "port": 8000}]
+SEEDS = ["192.168.0.13"]
 
 
 def reward_function(block_index, block_size, old_mean):
