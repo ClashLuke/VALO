@@ -1,7 +1,8 @@
 import jsonpickle
 from redis import Redis
-import crypto
+
 import config
+import crypto
 
 DATABASE = Redis()
 CONNECTED_DATA_TYPES = ('wallet', 'block', 'transaction')
@@ -68,8 +69,8 @@ def sub(data_type, key, amount):
 def init():
     if read('block_size', 'mean') is None:
         write(0, 'block_size', 'mean')
+        write(0, 'block_height', 'main')
+        write(0, 'sent', 'transactions')
+        write(config.SEEDS, 'peer', 'white')
     write([], 'transaction', 'cache')
     write([], 'transaction', 'mined')
-    write(config.SEEDS, 'peer', 'white')
-    write(0, 'block_height', 'main')
-    write(0, 'sent', 'transactions')
