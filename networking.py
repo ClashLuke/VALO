@@ -17,11 +17,9 @@ def init_node():
                            'read_transaction': interface.read_transaction,
                            'add_transaction':  interface.store_unverified_transaction,
                            'add_block':        interface.store_block,
-                           'ping':             utils.ping
+                           'ping':             utils.ping,
+                           'reply':            interface.mailbox_handler(mailbox)
                            }
-    request_to_function = {key: utils.reply_wrapper(function) for key, function in
-                           request_to_function.items()}
-    request_to_function['reply'] = interface.mailbox_handler(mailbox)
 
     node = Peer("0.0.0.0", P2P_PORT)
     node.register_routes(request_to_function)
@@ -33,7 +31,6 @@ def init_node():
         if ip not in failed_connections and ip not in successful_connections:
             response = node.send({'request_type': 'ping'}, ip)
             if response:
-                del mailbox['ping']
                 database.append(ip, "peer", "white")
                 successful_connections.append(ip)
             else:

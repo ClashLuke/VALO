@@ -21,12 +21,3 @@ def next_difficulty(timestamps: list, target_difficulties: list):
 
 def ping():
     return "pong"
-
-
-def reply_wrapper(function):
-    def wrapped_function(_, message: dict):
-        request_type = message.pop('key')
-        value = function(**message)
-        return {'key': 'reply', 'request_type': request_type, 'data': value}
-
-    return wrapped_function
