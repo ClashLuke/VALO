@@ -24,7 +24,8 @@ def init_node():
     node = Peer("0.0.0.0", P2P_PORT)
     node.register_routes(request_to_function)
 
-    listener = [threading.Thread(target=node.listen, daemon=True)]
+    listener = [threading.Thread(target=node.listen, daemon=True,
+                                 args=(successful_connections,))]
     listener[0].start()
 
     def add_connection(ip):

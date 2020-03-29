@@ -23,7 +23,7 @@ class Peer:
         self.known_ips = set()
         self.log_file = open(log_file, 'a')
 
-    def listen(self):
+    def listen(self, active_connections: set = None):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.bind((self.ip, self.port))
             sock.listen()
@@ -36,6 +36,8 @@ class Peer:
                     value = self.routes[request_type](**result)
                     value = jsonpickle.dumps(value).encode()
                     connection.sendall(value)
+                    if active_connections is not None:
+                        active_connections.add(host_ip)
                 except Exception as exc:
                     self.log_file.write(
                             ' '.join(['Exception of type', exc.__class__.__name__,
