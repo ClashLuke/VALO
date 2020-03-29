@@ -58,7 +58,7 @@ def init_node():
             time.sleep(1e-2)
         return mailbox.pop(request_type)
 
-    map(add_connection, interface.active_peers())
+    any(add_connection(peer) for peer in interface.active_peers())
 
     return online, add_connection, send
 
