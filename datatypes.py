@@ -100,7 +100,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     def mining_handler(callback):
         header_hash = random_hash()
-        threading.Thread(target=add_transactions).start()
+        threading.Thread(target=add_transactions, daemon=True).start()
         while mining[0] and not check_hash(header_hash):
             header_hash = random_hash()
         mining[0] = False
@@ -110,7 +110,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         mining[0] = state
         if state and not mining_thread:
             mining_thread.append(threading.Thread(target=mining_handler,
-                                                  args=(callback,)))
+                                                  args=(callback,), daemon=True))
             mining_thread[-1].start()
         elif not state and mining_thread:
             del mining_thread[0]

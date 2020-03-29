@@ -26,7 +26,7 @@ def init_node():
     node = Peer("0.0.0.0", P2P_PORT)
     node.register_routes(request_to_function)
 
-    listener = [threading.Thread(target=node.listen)]
+    listener = [threading.Thread(target=node.listen, daemon=True)]
     listener[0].start()
 
     def add_connection(ip):
@@ -43,7 +43,7 @@ def init_node():
         if listener and not status:
             del listener[0]
         elif not listener and status:
-            listener[0] = threading.Thread(target=node.listen)
+            listener[0] = threading.Thread(target=node.listen, daemon=True)
             listener[0].start()
 
     def send(message, connection_id=False):
