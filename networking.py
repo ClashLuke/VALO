@@ -97,7 +97,7 @@ class Node:
                                 }, None, False)
 
     def send_transaction(self, wallet_in, wallet_out, amount, index, signature,
-                         data_type=None):
+                         data_type=None):  # skipcq
         """
         :param wallet_in: public address funds come from
         :param wallet_out: public address funds go to
