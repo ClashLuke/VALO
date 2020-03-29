@@ -10,7 +10,6 @@ from peerstack.peer import Peer
 
 
 def init_node():
-    running = [True]
     running_connections = []
     successful_connections = []
     failed_connections = []
@@ -29,7 +28,7 @@ def init_node():
     node = Peer("0.0.0.0", P2P_PORT)
     node.add_route_dict(request_to_function)
 
-    listener = [threading.Thread(target=node.listen())]
+    listener = [threading.Thread(target=node.listen)]
     listener[0].start()
 
     def add_connection(ip):
@@ -49,7 +48,7 @@ def init_node():
         if listener and not status:
             del listener[0]
         elif not listener and status:
-            listener[0] = threading.Thread(target=node.listen())
+            listener[0] = threading.Thread(target=node.listen)
             listener[0].start()
 
     def send(request_type, message, connection_id=False, requires_answer=False):
@@ -97,6 +96,7 @@ class Node:
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
+        print(block_index)
         self.send('add_block', {'block_index':    block_index,
                                 'wallet':         wallet,
                                 'transactions':   transactions,
