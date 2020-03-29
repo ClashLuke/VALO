@@ -36,6 +36,7 @@ def main():
     operations['balance'] = interface.balance
     operations['send'] = interface.transact
     operations['address'] = interface.public_key
+    operations['peers'] = interface.active_peers
 
     while True:
         user_input = input(">> ")
