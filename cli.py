@@ -8,11 +8,8 @@ import interface
 
 def main():
     database.init()
-    public, private = interface.keypair()
     operations = {}
 
-    def mine():
-        interface.mine_top(public, private)
 
     def get_help():
         operations_string = str(list(operations.keys()))[1:-1].replace("'", "")
@@ -27,17 +24,15 @@ def main():
                 print(value)
             time.sleep(pause)
 
-    def balance(address=public):
-        return database.read('wallet', address) / config.UNIT
-
-    operations['mine'] = mine
+    operations['mine'] = interface.mine_top
     operations['?'] = get_help
     operations['help'] = get_help
     operations['exit'] = exit
     operations['height'] = interface.block_height
     operations['keypair'] = interface.keypair
     operations['loop'] = loop
-    operations['balance'] = balance
+    operations['balance'] = interface.balance
+    operations['send'] = interface.transact
 
     while True:
         user_input = input(">> ")
