@@ -1,6 +1,5 @@
 import random
 import threading
-import time
 
 import database
 import interface
@@ -32,9 +31,8 @@ def init_node():
 
     def add_connection(ip):
         if ip not in failed_connections and ip not in successful_connections:
-            node.send(ip, {'request_type': 'ping'})
-            time.sleep(1)
-            if 'ping' in mailbox:
+            response = node.send({'request_type': 'ping'}, ip)
+            if response:
                 del mailbox['ping']
                 database.append(ip, "peer", "white")
                 successful_connections.append(ip)
@@ -51,11 +49,11 @@ def init_node():
     def send(message, connection_id=False):
         if connection_id is None:
             for connection in successful_connections:
-                node.send(connection, message)
+                node.send(message, connection)
             return None
         if connection_id is False:
-            return node.send(random.choice(successful_connections), message)
-        return node.send(successful_connections[connection_id], message)
+            return node.send(message, random.choice(successful_connections))
+        return node.send(message, successful_connections[connection_id])
 
     any(add_connection(peer) for peer in interface.active_peers())
 
