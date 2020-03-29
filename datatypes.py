@@ -12,40 +12,48 @@ import utils
 
 
 def transaction(wallet_in: str, wallet_out: str, amount: int, index: int,
-                private_key=None, cache=False):
+                private_key=None, cache=False, signature=None, data_type='transaction'):
+    assert data_type == 'transaction'
     transaction_dict = {'wallet_in': wallet_in, 'wallet_out': wallet_out,
-                        'amount':    amount, 'index': index, 'data_type': 'transaction'
+                        'amount':    amount, 'index': index, 'data_type': 'transaction',
+                        'signature': signature
                         }
     signer, verifier, _ = crypto.eddsa(wallet_in, private_key)
     validated = [None]
     transaction_hash = [None]
+    signature = [signature]
 
     def sign():
-        return signer(crypto.pickle_hash(transaction_dict))
+        transaction_dict['signature'] = signer(crypto.pickle_hash(transaction_dict))
 
-    def verify(signature: bytes):
-        if not verifier(crypto.pickle_hash(transaction_dict), signature):
+    def verify():
+        updated_signature = transaction_dict.pop('signature')
+        transaction_dict['signature'] = None
+        if not verifier(crypto.pickle_hash(transaction_dict), updated_signature):
+            transaction_dict['signature'] = updated_signature
             return False
+        transaction_dict['signature'] = updated_signature
         try:
             if not database.read('wallet', wallet_in) >= amount:
                 return False
         except TypeError:
             return False
-        tx_hash = crypto.pickle_hash(transaction_dict)
+        tx_hash = crypto.pickle_hash(transaction_dict).decode(errors='ignore')
         if database.read('transaction', tx_hash) is not None:
             return False
         validated[0] = True
         transaction_hash[0] = tx_hash
         return True
 
-    def store(signature: bytes):
-        if validated[0] or (validated[0] is None and verify(signature)):
+    def store():
+        if validated[0] or (validated[0] is None and verify()):
             if cache:
                 database.append(transaction_dict, 'transaction', 'cache')
             else:
                 database.write(transaction_dict, 'transaction', transaction_hash[0])
                 database.sub('wallet', wallet_in, amount)
                 database.add('wallet', wallet_out, amount)
+            return transaction_dict
 
     return sign, verify, store
 
@@ -118,9 +126,10 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             return False
         header['signature'] = signature
         for i, tx in enumerate(transactions):
-            if isinstance(tx, dict):
-                transactions[i] = transaction(**tx)
-            if not transactions[i][1]():
+            if not isinstance(tx, dict):
+                raise UserWarning()
+
+            if not transaction(**tx)[1]():
                 return False
         return True
 
@@ -135,7 +144,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
                            'block',
                            crypto.pickle_hash(header).decode(errors='ignore'))
             for tx in transactions:
-                tx[2]()
+                transaction(**tx)[2]()
             block_size = sys.getsizeof(pickle.dumps(header, protocol=4))
             old_mean = interface.add_mean_block_size(block_size)
             reward = config.reward_function(block_index, block_size, old_mean)
