@@ -36,10 +36,10 @@ def main():
 
     while True:
         user_input = input(">> ")
-        function_name, *args = user_input.lower().split(' ')
+        function_name, *args = user_input.split(' ')
         value = None
         try:
-            function = operations[function_name]
+            function = operations[function_name.lower()]
         except KeyError:
             function = get_help
         try:
