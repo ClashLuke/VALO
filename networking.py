@@ -107,7 +107,6 @@ class Node:
 
     def send_block(self, block_index, wallet, transactions, difficulty, block_previous,
                    timestamp, nonce, signature):
-        print(block_index)
         self.send({'request_type':   'add_block',
                    'wallet':         wallet,
                    'transactions':   transactions,
