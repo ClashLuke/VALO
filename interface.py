@@ -1,5 +1,3 @@
-import os
-
 import config
 import crypto
 import database
@@ -21,7 +19,7 @@ def verify_transaction(wallet_in, wallet_out, amount, index, signature):
 def block_hash_at_index(block_index):
     block = database.read('connection+block_index+block', str(block_index))
     if block is None:
-        return os.urandom(256).decode(errors='ignore')
+        return config.GENESIS_HASH
     return block
 
 

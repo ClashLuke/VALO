@@ -1,3 +1,5 @@
+import base64
+
 P2P_PORT = 60337
 RPC_PORT = 61337
 
@@ -9,6 +11,12 @@ LWMA_WINDOW = 90
 REDUCTION_FACTOR = 2 ** 20
 
 SEEDS = ["192.168.0.13"]
+GENESIS_HASH = base64.b64decode(
+        "Qh5YJuWnbXBU/xvQ6nJ8JkHrIzjJgbdi5xKUKmYPUvj5YuZAWSDNhAwpXd1lTHUag1WJVilUN"
+        "/OzZD4mRLuzMvnKqUwHO1+WA7I6+CO8b+3AHNfkDx725tunk+TxgUUFjDkRmhdwStoR+9JvL6L"
+        "/0kFOesF4WBS6Bwi7bdDNFB5TfWprlS4bZG/oYsPJjxBGUlwO3EWulM6zjt0H3TOk0DwKze8eNQfB6"
+        "/mpTe0VHP39+vhFXw2d8ttxkfdRadr0iLFeK2QZ/K8DPEJxZ9qYg6aSQ"
+        "+kBlaTw3CawyiMSPWKVtcSRW7iGEIogbViGx4PvdwG38wAx/D/qR+78qKybMA==")
 
 
 def reward_function(block_index, block_size, old_mean):
