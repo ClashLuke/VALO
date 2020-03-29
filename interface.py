@@ -80,7 +80,15 @@ def keypair():
     return public, private
 
 
-def mine_top(wallet, private_key):
+def public_key():
+    public = database.read('keypair', 'public')
+    if public is None:
+        public, _ = keypair()
+    return public
+
+
+def mine_top():
+    wallet, private_key = keypair()
     height = block_height()
     last_hash = block_hash_at_index(height - 1)
     start_height = height - config.LWMA_WINDOW - 1
@@ -95,3 +103,29 @@ def mine_top(wallet, private_key):
     _, mine, _, _ = datatypes.block(height, wallet, [], difficulty, last_hash,
                                     private_key=private_key)
     mine(True, send_block)
+
+
+def transact(wallet_out, amount):
+    amount = int(amount)
+    wallet, private_key = keypair()
+    index = database.read('sent', 'transactions')
+    sign, _, store = datatypes.transaction(wallet, wallet_out, amount, index,
+                                           private_key, cache=True)
+    sign()
+    transaction = store()
+    if transaction is None:
+        print('Insufficient funds.')
+        return
+    database.add('sent', 'transactions', 1)
+    del transaction['data_type']
+
+    networking.BASE_NODE.node.send_transaction(**transaction)
+
+
+def balance(address=None):
+    if address is None:
+        address = public_key()
+    atomic_amount = database.read('wallet', address)
+    if atomic_amount is None:
+        return 0
+    return atomic_amount / config.UNIT
