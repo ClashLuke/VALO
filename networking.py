@@ -45,7 +45,8 @@ def init_node():
         if listener and not status:
             del listener[0]
         elif not listener and status:
-            listener[0] = threading.Thread(target=node.listen, daemon=True)
+            listener[0] = threading.Thread(target=node.listen, daemon=True,
+                                           args=(successful_connections,))
             listener[0].start()
 
     def send(message, connection_id=False):
