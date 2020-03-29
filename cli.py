@@ -12,7 +12,6 @@ def main():
 
     operations = {}
 
-
     def get_help():
         operations_string = str(list(operations.keys()))[1:-1].replace("'", "")
         return f"Possible operations are: {operations_string}"
