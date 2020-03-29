@@ -118,14 +118,16 @@ class Node:
                        'signature':    signature
                        }, None, False)
 
-    class BaseNode:
-        def __init__(self):
-            self._node = None
 
-        @property
-        def node(self):
-            if self._node is None:
-                self._node = Node()
-            return self._node
+class BaseNode:
+    def __init__(self):
+        self._node = None
 
-    BASE_NODE = BaseNode()
+    @property
+    def node(self):
+        if self._node is None:
+            self._node = Node()
+        return self._node
+
+
+BASE_NODE = BaseNode()
