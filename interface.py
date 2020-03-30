@@ -1,9 +1,10 @@
+import threading
+
 from nacl import encoding, signing
 
 import config
 import crypto
 import database
-import threading
 import datatypes
 import networking
 import utils
@@ -27,7 +28,7 @@ def block_hash_at_index(block_index):
 
 
 def reverse_hashes():
-    return (block_hash_at_index(idx-1) for idx in range(block_height(),0,-1))
+    return (block_hash_at_index(idx - 1) for idx in range(block_height(), 0, -1))
 
 
 def read_block(block_index):
@@ -172,10 +173,11 @@ def handle_split(ip):
         return
     skip = height - own_height
     split = networking.BASE_NODE.node().get_split(ip, skip)
-    old_block = [read_block(index) for index in range(own_height - split - 1, own_height)]
-    if not all(store_block(index=index, at_index=True, resolve=False,
+    old_block = [read_block(index) for index in
+                 range(own_height - split - 1, own_height)]
+    if not all(store_block(at_index=True, resolve=False,
                            **networking.BASE_NODE.node().request_block(index,
                                                                        ip)) is None for
                index in range(own_height - split - 1, own_height)):
-        any(store_block(index=index, at_index=True, resolve=False, **block) for
+        any(store_block(at_index=True, resolve=False, **block) for
             index, block in enumerate(old_block))

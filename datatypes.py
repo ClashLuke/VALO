@@ -174,10 +174,12 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     return check_hash, mine, verify, store
 
 
-def block_at_index(index, wallet, transactions: list, timestamp=None, nonce=None,
+def block_at_index(block_index, wallet, transactions: list, timestamp=None, nonce=None,
                    signature=None, private_key=None, **kwargs):
-    return block(index, wallet, transactions, interface.difficulty_at_index(index),
-                 interface.block_hash_at_index(index), timestamp, nonce, signature,
+    return block(block_index, wallet, transactions,
+                 interface.difficulty_at_index(block_index),
+                 interface.block_hash_at_index(block_index), timestamp, nonce,
+                 signature,
                  private_key)
 
 
