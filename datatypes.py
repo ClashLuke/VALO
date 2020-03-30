@@ -112,7 +112,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         threading.Thread(target=update_timestamp, daemon=True).start()
         while not check_hash(header_hash):
             header_hash = random_hash()
-        callback(header)
+        multiprocessing.Process(target=callback, args=(header,)).start()
         event.set()
 
     def mining_handler(callback, threads):
@@ -122,7 +122,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
                      for _ in range(threads)]
         any(proc.start() for proc in processes)
         while not found_block.wait(1e-3) and interface.block_height() <= block_index:
-            time.sleep(1)
+            time.sleep(1e-3)
         any(proc.terminate() for proc in processes)
         any(proc.join() for proc in processes)
 
