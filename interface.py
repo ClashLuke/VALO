@@ -167,9 +167,11 @@ def balance(address=None):
 
 def handle_split(ip):
     height = networking.BASE_NODE.node().request_height(ip)
-    if height < block_height():
+    own_height = block_height()
+    if height <= own_height:
         return
-    split = networking.BASE_NODE.node().get_split(ip)
+    skip = height - own_height
+    split = networking.BASE_NODE.node().get_split(ip, skip)
     old_block = [read_block(index) for index in range(height - split - 1, height)]
 
     if not all(store_block(index=index, at_index=True, resolve=False,

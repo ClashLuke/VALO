@@ -157,10 +157,11 @@ class Node:
                    'signature':    signature
                    }, None)
 
-    def get_split(self, ip):
-        return self.send({'target':        1,
+    def get_split(self, ip, skip=0):
+        return self.send({'target':        0,
                           'iterator':      interface.reverse_hashes(),
-                          'iterator_name': 'reverse_hashes'
+                          'iterator_name': 'reverse_hashes',
+                          'skip':          skip
                           }, ip, 'compare')
 
     def request_height(self, ip=False):
