@@ -172,11 +172,10 @@ def handle_split(ip):
         return
     skip = height - own_height
     split = networking.BASE_NODE.node().get_split(ip, skip)
-    old_block = [read_block(index) for index in range(height - split - 1, height)]
-
+    old_block = [read_block(index) for index in range(own_height - split - 1, own_height)]
     if not all(store_block(index=index, at_index=True, resolve=False,
                            **networking.BASE_NODE.node().request_block(index,
                                                                        ip)) is None for
-               index in range(height - split - 1, height)):
+               index in range(own_height - split - 1, own_height)):
         any(store_block(index=index, at_index=True, resolve=False, **block) for
             index, block in enumerate(old_block))
