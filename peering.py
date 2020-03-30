@@ -34,6 +34,7 @@ class Peer:
         connection_item = init_item
         iterator = self.iterator[iterator_name]()
         for _ in range(skip):
+        for _ in range(int(skip)):
             iterator()
         for item in iterator:
             self.connection.sendall(bytes(int(connection_item == item)))
@@ -46,7 +47,7 @@ class Peer:
         target = context['target']
         iterator = context['iterator']
         iterator_name = context['iterator_name']
-        skip = context['iterator_name']
+        skip = context['skip']
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((ip, self.port))
