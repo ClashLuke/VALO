@@ -112,10 +112,12 @@ def private_key():
     return private.encode(encoder=encoding.URLSafeBase64Encoder).decode()
 
 
-def difficulty_at_index(index):
+def difficulty_at_index(index, default=5000):
+    if index is None:
+        return default
     start_height = index - config.LWMA_WINDOW - 1
     if start_height < 1:
-        return 5000
+        return default
     recent_blocks = [read_block(idx) for idx in range(start_height, index)]
     if not all(recent_blocks):
         raise UserWarning("Index too high.")
