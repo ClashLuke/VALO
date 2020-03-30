@@ -7,13 +7,17 @@ import utils
 def receive_all(connection, buffer_size=2 ** 10):
     result = []
     while True:
-        data = connection.recv(buffer_size)
+        try:
+            data = connection.recv(buffer_size)
+        except socket.timeout:
+            break
         result.append(data)
         if len(data) < buffer_size:
             break
-    result = b''.join(result).decode()
+    result = b''.join(result)
     return utils.loads(result)
 
+socket.setdefaulttimeout(1)
 
 class Peer:
     def __init__(self, ip, port, log_file='p2p.log'):
