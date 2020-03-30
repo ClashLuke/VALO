@@ -33,7 +33,6 @@ class Peer:
     def compare_listener(self, init_item, iterator_name, skip, **kwargs):
         connection_item = init_item
         iterator = self.iterator[iterator_name]()
-        for _ in range(skip):
         for _ in range(int(skip)):
             iterator()
         for item in iterator:
