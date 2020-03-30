@@ -37,8 +37,9 @@ class Peer:
         connection = self.connections.pop(-1)
         for _ in range(int(skip)):
             next(iterator)
-        for item in iterator:
-            connection.sendall(bytes(int(connection_item == item)))
+        while True:
+            item = next(iterator)
+            connection.sendall(utils.dumps(int(connection_item == item)))
             connection_item = receive_all(connection)
             if connection_item is None:
                 break
@@ -58,12 +59,10 @@ class Peer:
                                           'skip':          skip
                                           }))
 
-                if int.from_bytes(sock.recv(4), 'little') != target:
-                    return 0
-                for i, item in enumerate(1, iterator):
-                    sock.sendall(item)
-                    if int.from_bytes(sock.recv(4), 'little') != target:
-                        break
+                i = 0
+                while receive_all(sock) != target:
+                    sock.sendall(utils.dumps(next(iterator)))
+                    i += 1
             except socket.timeout:
                 return None
             except ConnectionError:
