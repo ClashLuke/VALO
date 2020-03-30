@@ -72,7 +72,7 @@ def mailbox_handler(mailbox):
 
 
 def send_block(header: dict):
-    threading.Thread(target=store_block, kwargs=header).start()
+    threading.Thread(target=store_block, kwargs={**header, 'at_index':True}).start()
     networking.BASE_NODE.node().send_block(**header)
 
 
@@ -116,6 +116,7 @@ def private_key():
 def difficulty_at_index(index, default=5000):
     if index is None:
         return default
+    index = int(index)
     start_height = index - config.LWMA_WINDOW - 1
     if start_height < 1:
         return default
