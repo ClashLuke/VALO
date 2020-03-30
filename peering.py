@@ -101,11 +101,13 @@ class Peer:
             try:
                 sock.connect((ip, self.port))
                 sock.sendall(utils.dumps(message))
-                return receive_all(sock)
+                value = receive_all(sock)
             except socket.timeout:
                 return None
             except ConnectionError:
                 return None
-
+            if isinstance(value, dict):
+                value['ip'] = ip
+            return value
     def register_routes(self, routes: dict):
         self.routes.update(routes)
