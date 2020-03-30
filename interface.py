@@ -25,6 +25,11 @@ def block_hash_at_index(block_index):
     return block
 
 
+def reverse_hashes():
+    for idx in range(block_height()):
+        yield block_hash_at_index(idx)
+
+
 def read_block(block_index):
     block_hash = block_hash_at_index(block_index)
     if block_hash is None:
