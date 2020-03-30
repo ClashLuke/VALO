@@ -46,12 +46,14 @@ class Peer:
         target = context['target']
         iterator = context['iterator']
         iterator_name = context['iterator_name']
+        skip = context['iterator_name']
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             try:
                 sock.connect((ip, self.port))
                 sock.sendall(utils.dumps({'request_type':  'compare',
                                           'init_item':     next(iterator),
-                                          'iterator_name': iterator_name
+                                          'iterator_name': iterator_name,
+                                          'skip':          skip
                                           }))
 
                 if int.from_bytes(sock.recv(4), 'little') != target:
@@ -109,5 +111,6 @@ class Peer:
             if isinstance(value, dict):
                 value['ip'] = ip
             return value
+
     def register_routes(self, routes: dict):
         self.routes.update(routes)
