@@ -46,7 +46,7 @@ def store_block(*args, ip=False, at_index=False, resolve=True, **kwargs):
     _, _, _, store = function(*args, **kwargs)
     value = store()
     if value is False and resolve and ip:
-        handle_split('1')
+        handle_split(ip)
     elif not resolve:
         return value
 
