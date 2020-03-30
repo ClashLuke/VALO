@@ -28,7 +28,7 @@ def ping():
 
 def dumps(obj):
     pickled_obj = jsonpickle.dumps(obj).encode()
-    return zstd.ZstdCompressor(level=19).compress(pickled_obj)
+    return zstd.ZstdCompressor(level=config.COMPRESSION_LEVEL).compress(pickled_obj)
 
 
 def loads(obj):
