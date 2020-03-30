@@ -40,7 +40,10 @@ def main():
     operations['load'] = interface.load_key
 
     while True:
-        user_input = input(">> ")
+        try:
+            user_input = input(">> ")
+        except KeyboardInterrupt:
+            user_input = 'exit'
         function_name, *args = user_input.split(' ')
         value = None
         try:
