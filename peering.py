@@ -30,7 +30,7 @@ class Peer:
         self.log_file = open(log_file, 'a')
         self.connection = None
 
-    def compare_listener(self, init_item, iterator_name):
+    def compare_listener(self, init_item, iterator_name, **kwargs):
         connection_item = init_item
         iterator = self.iterator[iterator_name]()
         for item in iterator:
