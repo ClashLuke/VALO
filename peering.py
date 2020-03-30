@@ -53,7 +53,10 @@ class Peer:
                                           'init_item':     next(iterator),
                                           'iterator_name': iterator_name
                                           }))
-                for i, item in enumerate(iterator):
+
+                if int.from_bytes(sock.recv(4), 'little') != target:
+                    return 0
+                for i, item in enumerate(1, iterator):
                     sock.sendall(item)
                     if int.from_bytes(sock.recv(4), 'little') != target:
                         break
