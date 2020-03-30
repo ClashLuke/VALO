@@ -160,9 +160,13 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     return check_hash, mine, verify, store
 
 
-def top_block(wallet, transactions: list, timestamp=None, nonce=None,
-              signature=None, private_key=None, **kwargs):
-    index = interface.block_height()
+def block_at_index(index, wallet, transactions: list, timestamp=None, nonce=None,
+                   signature=None, private_key=None, **kwargs):
     return block(index, wallet, transactions, interface.difficulty_at_index(index),
                  interface.block_hash_at_index(index), timestamp, nonce, signature,
                  private_key)
+
+
+def top_block(*args, **kwargs):
+    index = interface.block_height()
+    return block_at_index(index, *args, **kwargs)
