@@ -158,7 +158,7 @@ class Node:
                    }, None)
 
     def get_split(self, ip, skip=0):
-        return self.send({'target':        0,
+        return self.send({'target':        1,
                           'iterator':      interface.reverse_hashes(),
                           'iterator_name': 'reverse_hashes',
                           'skip':          skip
