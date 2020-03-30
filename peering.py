@@ -26,7 +26,7 @@ class Peer:
 
     def compare_listener(self, init_item, iterator_name):
         connection_item = init_item
-        iterator = self.iterator[iterator_name]
+        iterator = self.iterator[iterator_name]()
         for item in iterator:
             self.connection.sendall(bytes(int(connection_item == item)))
             connection_item = receive_all(self.connection)
@@ -34,7 +34,10 @@ class Peer:
                 break
         return None
 
-    def compare(self, target, iterator, iterator_name, ip):
+    def compare(self, context, ip):
+        target = context['target']
+        iterator = context['iterator']
+        iterator_name = context['iterator_name']
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.connect((ip, self.port))
             sock.sendall(utils.dumps({'request_type':  'compare',

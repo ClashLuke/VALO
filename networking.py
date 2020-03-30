@@ -24,9 +24,11 @@ def init_node():
                            'ping':             utils.ping,
                            'reply':            interface.mailbox_handler(mailbox)
                            }
+    iterators = {'reverse_hashes': interface.reverse_hashes}
 
     node = Peer("0.0.0.0", P2P_PORT)
-    node.register_routes(request_to_function)
+    node.routes.update(request_to_function)
+    node.iterator.update(iterators)
 
     listener = [threading.Thread(target=node.listen, daemon=True,
                                  args=(successful_connections,))]
@@ -52,13 +54,14 @@ def init_node():
                                            args=(successful_connections,))
             listener[0].start()
 
-    def send(message, connection_ip=False):
+    def send(message, connection_ip=False, function_name='send'):
+        function = getattr(node, function_name)
         if connection_ip is None:
-            return {connection: node.send(message, connection) for connection in
+            return {connection: function(message, connection) for connection in
                     successful_connections}
         if connection_ip is False:
-            return node.send(message, random.sample(successful_connections, 1)[0])
-        return node.send(message, connection_ip)
+            return function(message, random.sample(successful_connections, 1)[0])
+        return function(message, connection_ip)
 
     any(add_connection(peer) for peer in interface.active_peers())
 
@@ -146,6 +149,12 @@ class Node:
                    'index':        index,
                    'signature':    signature
                    }, None)
+
+    def get_split(self, ip):
+        return self.send({'target':        1,
+                          'iterator':      interface.reverse_hashes(),
+                          'iterator_name': 'reverse_hashes'
+                          }, ip, 'compare')
 
 
 class BaseNode:
