@@ -17,7 +17,9 @@ def receive_all(connection, buffer_size=2 ** 10):
     result = b''.join(result)
     return utils.loads(result)
 
+
 socket.setdefaulttimeout(1)
+
 
 class Peer:
     def __init__(self, ip, port, log_file='p2p.log'):
@@ -64,6 +66,7 @@ class Peer:
                     result = receive_all(connection)
                     self.connection = connection
                     request_type = result.pop('request_type')
+                    result['ip'] = host_ip
                     value = self.routes[request_type](**result)
                     if value is not None:
                         value = utils.dumps(value)
