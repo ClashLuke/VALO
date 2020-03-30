@@ -80,7 +80,6 @@ def keypair():
         public, private = keygen()
         database.write(public, 'keypair', 'public')
         database.write(private, 'keypair', 'private')
-
     else:
         public = database.read('keypair', 'public')
 
