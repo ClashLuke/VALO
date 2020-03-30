@@ -80,6 +80,13 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     mining_thread = []
     verified = [None]
 
+    def update_timestamp():
+        if mining[0]:
+            header['timestamp'] = int(time.time())
+        while mining[0]:
+            time.sleep(1)
+            header['timestamp'] += 1
+
     def add_transactions():
         while mining[0]:
             new_transactions = database.read('transaction', 'cache')
@@ -99,6 +106,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     def mining_handler(callback):
         header_hash = random_hash()
         threading.Thread(target=add_transactions, daemon=True).start()
+        threading.Thread(target=update_timestamp, daemon=True).start()
         while mining[0] and not check_hash(header_hash):
             header_hash = random_hash()
         mining[0] = False
