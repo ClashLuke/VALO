@@ -41,9 +41,10 @@ def read_transaction(transaction_hash):
     return database.read('transaction', transaction_hash)
 
 
-def store_block(*args, **kwargs):
-    _, _, _, store = datatypes.top_block(*args, **kwargs)
-    store()
+def store_block(*args, at_index=False, resolve=True, **kwargs):
+    function = getattr(datatypes, 'block_at_index' if at_index else 'top_block')
+    _, _, _, store = function(*args, **kwargs)
+    value = store()
 
 
 def add_mean_block_size(block_size):
@@ -150,3 +151,18 @@ def balance(address=None):
     if atomic_amount is None:
         return 0
     return atomic_amount / config.UNIT
+
+
+def handle_split(ip):
+    height = networking.BASE_NODE.node().request_height(ip)
+    if height < block_height():
+        return
+    split = networking.BASE_NODE.node().get_split(ip)
+    old_block = [read_block(index) for index in range(height - split - 1, height)]
+
+    if not all(store_block(index=index, at_index=True, resolve=False,
+                           **networking.BASE_NODE.node().request_block(index,
+                                                                       ip)) is None for
+               index in range(height - split - 1, height)):
+        any(store_block(index=index, at_index=True, resolve=False, **block) for
+            index, block in enumerate(old_block))

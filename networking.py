@@ -113,9 +113,9 @@ class Node:
         for peer in peers:
             self.add_connection(peer)
 
-    def request_block(self, block_index):
+    def request_block(self, block_index, ip=False):
         return self.send({'request_type': 'read_block', 'block_index': block_index},
-                         False)
+                         ip)
 
     def request_transaction(self, transaction_hash):
         return self.send({'request_type':     'read_transaction',
@@ -155,6 +155,9 @@ class Node:
                           'iterator':      interface.reverse_hashes(),
                           'iterator_name': 'reverse_hashes'
                           }, ip, 'compare')
+
+    def request_height(self, ip=False):
+        return self.send({'request_type': 'read_height'}, ip)
 
 
 class BaseNode:
