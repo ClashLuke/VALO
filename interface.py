@@ -72,7 +72,7 @@ def mailbox_handler(mailbox):
 
 
 def send_block(header: dict):
-    threading.Thread(target=store_block, kwargs={**header, 'at_index':True}).start()
+    threading.Thread(target=store_block, kwargs={**header, 'at_index': True}).start()
     networking.BASE_NODE.node().send_block(**header)
 
 
@@ -174,11 +174,13 @@ def handle_split(ip):
         return
     skip = height - own_height
     split = networking.BASE_NODE.node().get_split(ip, skip)
-    old_block = [read_block(index) for index in
-                 range(own_height - split - 1, own_height)]
-    if not all(store_block(at_index=True, resolve=False,
-                           **networking.BASE_NODE.node().request_block(index,
-                                                                       ip)) is None for
-               index in range(own_height - split - 1, own_height)):
-        any(store_block(at_index=True, resolve=False, **block) for
-            index, block in enumerate(old_block))
+    old_blocks = []
+    index = own_height - split - 1
+    while (old_blocks.append(read_block(index)) is None and
+           store_block(at_index=True, resolve=False,
+                       **networking.BASE_NODE.node().request_block(index,
+                                                                   ip)) is not False):
+        index += 1
+
+    for block in old_blocks:
+        store_block(at_index=True, resolve=False, **block)
