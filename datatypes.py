@@ -154,6 +154,8 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             reward = config.reward_function(block_index, block_size, old_mean)
             database.add('wallet', wallet, reward)
             database.add('block_height', 'main', 1)
+            return
+        return False
 
     return check_hash, mine, verify, store
 
