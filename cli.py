@@ -36,6 +36,8 @@ def main():
     operations['send'] = interface.transact
     operations['address'] = interface.public_key
     operations['peers'] = interface.active_peers
+    operations['dump'] = interface.private_key
+    operations['load'] = interface.load_key
 
     while True:
         user_input = input(">> ")

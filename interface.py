@@ -1,3 +1,5 @@
+from nacl import encoding, signing
+
 import config
 import crypto
 import database
@@ -63,6 +65,14 @@ def send_block(header):
     store_block(**header)
 
 
+def load_key(private):
+    private = signing.SigningKey(private.encode(),
+                                 encoder=encoding.URLSafeBase64Encoder)
+    public = private.verify_key
+    database.write(public, 'keypair', 'public')
+    database.write(private, 'keypair', 'private')
+
+
 def keypair():
     private = database.read('keypair', 'private')
     if private is None:
@@ -86,6 +96,11 @@ def public_key():
     if public is None:
         public, _ = keypair()
     return public
+
+
+def private_key():
+    private = database.read('keypair', 'private')
+    return private.encode(encoder=encoding.URLSafeBase64Encoder).decode()
 
 
 def difficulty_at_index(index):
