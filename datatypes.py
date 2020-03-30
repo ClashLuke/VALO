@@ -1,3 +1,4 @@
+import multiprocessing
 import pickle
 import random
 import sys
@@ -76,7 +77,9 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     diff = 2 ** 256 - 1
     diff //= difficulty
-    mining = [False]
+    mining_manager = multiprocessing.Manager()
+    mining = mining_manager.list()
+    mining.append(False)
     mining_thread = []
     verified = [None]
 
@@ -103,23 +106,34 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         sign()
         return crypto.pickle_hash(header)
 
-    def mining_handler(callback):
+    def mining_process(event, callback):
         header_hash = random_hash()
         threading.Thread(target=add_transactions, daemon=True).start()
         threading.Thread(target=update_timestamp, daemon=True).start()
-        while mining[0] and not check_hash(header_hash):
+        while not check_hash(header_hash):
             header_hash = random_hash()
-        mining[0] = False
         callback(header)
+        event.set()
 
-    def mine(state, callback=None):
+    def mining_handler(callback, threads):
+        found_block = multiprocessing.Event()
+        processes = [multiprocessing.Process(target=mining_process,
+                                             args=(found_block, callback))
+                     for _ in range(threads)]
+        any(proc.start() for proc in processes)
+        while found_block.wait(1e-3) and interface.block_height() <= block_index:
+            time.sleep(1)
+        any(proc.terminate() for proc in processes)
+        any(proc.join() for proc in processes)
+
+    def mine(state, callback=None, threads=16):
         mining[0] = state
-        if state and not mining_thread:
+        if state and len(mining_thread) < threads:
             mining_thread.append(threading.Thread(target=mining_handler,
-                                                  args=(callback,), daemon=True))
+                                                  args=(callback, threads)))
             mining_thread[-1].start()
         elif not state and mining_thread:
-            del mining_thread[0]
+            mining_thread.clear()
 
     def _verify():
         if not check_hash(crypto.pickle_hash(header)):
