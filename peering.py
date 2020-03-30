@@ -86,7 +86,7 @@ class Peer:
                 sock.connect((ip, self.port))
                 sock.sendall(utils.dumps(message))
                 return receive_all(sock)
-            except socket.timeout:
+            except socket.timeout or ConnectionError:
                 return None
 
     def register_routes(self, routes: dict):
