@@ -3,6 +3,7 @@ from nacl import encoding, signing
 import config
 import crypto
 import database
+import threading
 import datatypes
 import networking
 import utils
@@ -69,9 +70,9 @@ def mailbox_handler(mailbox):
     return assign
 
 
-def send_block(header):
+def send_block(header: dict):
+    threading.Thread(target=store_block, kwargs=header).start()
     networking.BASE_NODE.node().send_block(**header)
-    store_block(**header)
 
 
 def load_key(private):
