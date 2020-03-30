@@ -97,7 +97,8 @@ class Node:
         ip = max(heights, key=heights.get)
         any(interface.store_block(
                 **self.send({'request_type': 'read_block', 'block_index': i},
-                            ip)) for i in range(interface.block_height(), heights[ip]))
+                            ip)) is False for i in
+            range(interface.block_height(), heights[ip]))
 
     def sync_loop(self):
         while self.syncing:
