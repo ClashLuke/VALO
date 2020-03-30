@@ -1,4 +1,5 @@
 import socket
+import threading
 import time
 
 import utils
@@ -18,7 +19,7 @@ def receive_all(connection, buffer_size=2 ** 10):
     return utils.loads(result)
 
 
-socket.setdefaulttimeout(1)
+socket.setdefaulttimeout(10)
 
 
 class Peer:
@@ -28,16 +29,17 @@ class Peer:
         self.routes = {'compare': self.compare_listener}
         self.iterator = {}
         self.log_file = open(log_file, 'a')
-        self.connection = None
+        self.connections = []
 
     def compare_listener(self, init_item, iterator_name, skip, **kwargs):
         connection_item = init_item
         iterator = self.iterator[iterator_name]()
+        connection = self.connections.pop(-1)
         for _ in range(int(skip)):
-            iterator()
+            next(iterator)
         for item in iterator:
-            self.connection.sendall(bytes(int(connection_item == item)))
-            connection_item = receive_all(self.connection)
+            connection.sendall(bytes(int(connection_item == item)))
+            connection_item = receive_all(connection)
             if connection_item is None:
                 break
         return None
@@ -68,6 +70,27 @@ class Peer:
                 return None
         return i
 
+    def handle_request(self, host_ip, connection, active_connections):
+        try:
+            result = receive_all(connection)
+            self.connections.append(connection)
+            request_type = result.pop('request_type')
+            result['ip'] = host_ip
+            value = self.routes[request_type](**result)
+            if value is not None:
+                value = utils.dumps(value)
+                connection.sendall(value)
+            if active_connections is not None:
+                active_connections.add(host_ip)
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
+            self.log_file.write(
+                    ' '.join(['Exception of type', exc.__class__.__name__,
+                              'occured at', str(int(time.time())),
+                              '(unix timestamp) containing', str(exc),
+                              'as data\n']))
+
     def listen(self, active_connections: set = None):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             while True:
@@ -81,16 +104,9 @@ class Peer:
             while True:
                 try:
                     connection, (host_ip, _) = sock.accept()
-                    result = receive_all(connection)
-                    self.connection = connection
-                    request_type = result.pop('request_type')
-                    result['ip'] = host_ip
-                    value = self.routes[request_type](**result)
-                    if value is not None:
-                        value = utils.dumps(value)
-                        connection.sendall(value)
-                    if active_connections is not None:
-                        active_connections.add(host_ip)
+                    threading.Thread(target=self.handle_request,
+                                     args=(host_ip, connection, active_connections)
+                                     ).start()
                 except Exception as exc:
                     self.log_file.write(
                             ' '.join(['Exception of type', exc.__class__.__name__,
