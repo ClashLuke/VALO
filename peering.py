@@ -30,9 +30,11 @@ class Peer:
         self.log_file = open(log_file, 'a')
         self.connection = None
 
-    def compare_listener(self, init_item, iterator_name, **kwargs):
+    def compare_listener(self, init_item, iterator_name, skip, **kwargs):
         connection_item = init_item
         iterator = self.iterator[iterator_name]()
+        for _ in range(skip):
+            iterator()
         for item in iterator:
             self.connection.sendall(bytes(int(connection_item == item)))
             connection_item = receive_all(self.connection)
@@ -45,15 +47,20 @@ class Peer:
         iterator = context['iterator']
         iterator_name = context['iterator_name']
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((ip, self.port))
-            sock.sendall(utils.dumps({'request_type':  'compare',
-                                      'init_item':     next(iterator),
-                                      'iterator_name': iterator_name
-                                      }))
-            for i, item in enumerate(iterator):
-                sock.sendall(item)
-                if int.from_bytes(sock.recv(4), 'little') != target:
-                    break
+            try:
+                sock.connect((ip, self.port))
+                sock.sendall(utils.dumps({'request_type':  'compare',
+                                          'init_item':     next(iterator),
+                                          'iterator_name': iterator_name
+                                          }))
+                for i, item in enumerate(iterator):
+                    sock.sendall(item)
+                    if int.from_bytes(sock.recv(4), 'little') != target:
+                        break
+            except socket.timeout:
+                return None
+            except ConnectionError:
+                return None
         return i
 
     def listen(self, active_connections: set = None):
