@@ -32,7 +32,10 @@ def dumps(obj):
 
 
 def loads(obj):
-    uncompressed = zstd.ZstdDecompressor().decompress(obj).decode(errors='ignore')
+    try:
+        uncompressed = zstd.ZstdDecompressor().decompress(obj).decode(errors='ignore')
+    except zstd.ZstdError:
+        return None
     return jsonpickle.loads(uncompressed)
 
 
