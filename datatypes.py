@@ -121,7 +121,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
                                              args=(found_block, callback))
                      for _ in range(threads)]
         any(proc.start() for proc in processes)
-        while found_block.wait(1e-3) and interface.block_height() <= block_index:
+        while not found_block.wait(1e-3) and interface.block_height() <= block_index:
             time.sleep(1)
         any(proc.terminate() for proc in processes)
         any(proc.join() for proc in processes)
