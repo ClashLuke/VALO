@@ -41,10 +41,14 @@ def read_transaction(transaction_hash):
     return database.read('transaction', transaction_hash)
 
 
-def store_block(*args, at_index=False, resolve=True, **kwargs):
+def store_block(*args, ip=False, at_index=False, resolve=True, **kwargs):
     function = getattr(datatypes, 'block_at_index' if at_index else 'top_block')
     _, _, _, store = function(*args, **kwargs)
     value = store()
+    if value is False and resolve and ip:
+        handle_split('1')
+    elif not resolve:
+        return value
 
 
 def add_mean_block_size(block_size):

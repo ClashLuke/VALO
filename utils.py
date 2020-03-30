@@ -34,3 +34,11 @@ def dumps(obj):
 def loads(obj):
     uncompressed = zstd.ZstdDecompressor().decompress(obj).decode(errors='ignore')
     return jsonpickle.loads(uncompressed)
+
+
+def networking_wrapper(function):
+    def new_function(**kwargs):
+        del kwargs['ip']
+        return function(**kwargs)
+
+    return new_function

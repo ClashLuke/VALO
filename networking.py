@@ -20,12 +20,15 @@ def init_node():
                            'read_transaction': interface.read_transaction,
                            'read_height':      interface.block_height,
                            'add_transaction':  interface.store_unverified_transaction,
-                           'add_block':        interface.store_block,
                            'ping':             utils.ping,
                            'reply':            interface.mailbox_handler(mailbox)
                            }
+
+    request_to_function = {key: utils.networking_wrapper(function) for key, function in
+                           request_to_function.items()}
     iterators = {'reverse_hashes': interface.reverse_hashes}
 
+    request_to_function['add_block'] = interface.store_block
     node = Peer("0.0.0.0", P2P_PORT)
     node.routes.update(request_to_function)
     node.iterator.update(iterators)
