@@ -82,9 +82,12 @@ class Peer:
 
     def send(self, message, ip):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((ip, self.port))
-            sock.sendall(utils.dumps(message))
-            return receive_all(sock)
+            try:
+                sock.connect((ip, self.port))
+                sock.sendall(utils.dumps(message))
+                return receive_all(sock)
+            except socket.timeout:
+                return None
 
     def register_routes(self, routes: dict):
         self.routes.update(routes)
