@@ -127,6 +127,12 @@ def difficulty_at_index(index, default=5000):
     return utils.next_difficulty(timestamps, difficulties)
 
 
+def difficulty(index=None):
+    if index is None:
+        index = block_height()
+    return difficulty_at_index(index)
+
+
 def mine_top(threads=4):
     wallet, private_key = keypair()
     _, mine, _, _ = datatypes.top_block(wallet, [], private_key=private_key)

@@ -38,6 +38,7 @@ def main():
     operations['peers'] = interface.active_peers
     operations['dump'] = interface.private_key
     operations['load'] = interface.load_key
+    operations['diff'] = interface.difficulty
 
     while True:
         try:
