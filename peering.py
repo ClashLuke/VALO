@@ -58,7 +58,13 @@ class Peer:
 
     def listen(self, active_connections: set = None):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.bind((self.ip, self.port))
+            while True:
+                try:
+                    sock.bind((self.ip, self.port))
+                except OSError:
+                    time.sleep(1)
+                else:
+                    break
             sock.listen()
             while True:
                 try:
