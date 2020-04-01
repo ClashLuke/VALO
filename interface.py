@@ -181,6 +181,9 @@ def handle_split(ip):
                        **networking.BASE_NODE.node().request_block(index,
                                                                    ip)) is not False):
         index += 1
-
+    if index >= own_height:
+        return
     for block in old_blocks:
+        if block is None:
+            break
         store_block(at_index=True, resolve=False, **block)
