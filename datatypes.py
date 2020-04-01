@@ -137,10 +137,12 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
 
     def _verify():
         if not check_hash(crypto.pickle_hash(header)):
+            print("H1")
             return False
         header['signature'] = None
         if not verifier(crypto.pickle_hash(header), signature):
             header['signature'] = signature
+            print("H2")
             return False
         header['signature'] = signature
         for tx in transactions:
@@ -165,7 +167,9 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             old_mean = interface.add_mean_block_size(block_size)
             reward = config.reward_function(block_index, block_size, old_mean)
             database.add('wallet', wallet, reward)
-            database.add('block_height', 'main', 1)
+            height = database.read('block_height', 'main')
+            if block_index == height:  # < implies insertion | > does not exist
+                database.add('block_height', 'main', 1)
             return
         return False
 
