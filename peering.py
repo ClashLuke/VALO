@@ -38,7 +38,14 @@ class Peer:
         for _ in range(int(skip)):
             next(iterator)
         while True:
-            item = next(iterator)
+            try:
+                item = next(iterator)
+            except StopIteration:
+                connection.sendall(0)
+                break
+            except RuntimeError:
+                connection.sendall(0)
+                break
             connection.sendall(utils.dumps(int(connection_item == item)))
             connection_item = receive_all(connection)
             if connection_item is None:
@@ -61,7 +68,12 @@ class Peer:
 
                 i = 0
                 while receive_all(sock) != target:
-                    sock.sendall(utils.dumps(next(iterator)))
+                    try:
+                        sock.sendall(utils.dumps(next(iterator)))
+                    except RuntimeError:
+                        break
+                    except StopIteration:
+                        break
                     i += 1
             except socket.timeout:
                 return None
@@ -106,6 +118,8 @@ class Peer:
                     threading.Thread(target=self.handle_request,
                                      args=(host_ip, connection, active_connections)
                                      ).start()
+                except socket.timeout:
+                    pass
                 except Exception as exc:
                     self.log_file.write(
                             ' '.join(['Exception of type', exc.__class__.__name__,
