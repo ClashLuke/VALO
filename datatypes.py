@@ -182,5 +182,5 @@ def block_at_index(block_index, wallet, transactions: list, timestamp=None, nonc
 
 
 def top_block(*args, **kwargs):
-    index = interface.block_height()
-    return block_at_index(index, *args, **kwargs)
+    kwargs['block_index'] = interface.block_height()
+    return block_at_index(*args, **kwargs)
