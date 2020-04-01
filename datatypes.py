@@ -142,8 +142,6 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         if not verifier(crypto.pickle_hash(header), signature):
             header['signature'] = signature
             return False
-        if database.read('connection+block_index+block', str(block_index)) is not None:
-            return False
         header['signature'] = signature
         for tx in transactions:
             if not isinstance(tx, dict):
