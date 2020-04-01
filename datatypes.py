@@ -178,7 +178,7 @@ def block_at_index(block_index, wallet, transactions: list, timestamp=None, nonc
                    signature=None, private_key=None, **kwargs):
     return block(block_index, wallet, transactions,
                  interface.difficulty_at_index(block_index),
-                 interface.block_hash_at_index(block_index-1), timestamp, nonce,
+                 interface.block_hash_at_index(int(block_index)-1), timestamp, nonce,
                  signature,
                  private_key)
 
