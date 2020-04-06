@@ -21,7 +21,10 @@ GENESIS_HASH = base64.b64decode(
         "/mpTe0VHP39+vhFXw2d8ttxkfdRadr0iLFeK2QZ/K8DPEJxZ9qYg6aSQ"
         "+kBlaTw3CawyiMSPWKVtcSRW7iGEIogbViGx4PvdwG38wAx/D/qR+78qKybMA=="
         ).decode(errors='ignore')
+PREMINE = {"FOI2CKJBM4HBXP5CYS4PLFGWQ6CJDOWJPQQGNFARVYX73WRA75GQ====": 10 ** 12}
 
+
+# load p1IlyIbhDL6iJGh_xsSMvBfBiBwZTkBW3yOMac-_e0Y=
 
 def reward_function(block_index, block_size, old_mean):
     size_factor = block_size / min(1, abs(block_size - old_mean)) ** 1.5

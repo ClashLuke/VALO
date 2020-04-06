@@ -84,6 +84,7 @@ class Peer:
     def handle_request(self, host_ip, connection, active_connections):
         try:
             result = receive_all(connection)
+            print(result)
             self.connections.append(connection)
             request_type = result.pop('request_type')
             result['ip'] = host_ip

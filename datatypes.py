@@ -1,6 +1,5 @@
 import multiprocessing
 import pickle
-import random
 import sys
 import threading
 import time
@@ -82,6 +81,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
     mining.append(False)
     mining_thread = []
     verified = [None]
+    nonce_maximum = interface.balance(wallet, True) - 1
 
     def update_timestamp():
         if mining[0]:
@@ -102,29 +102,48 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         return utils.bytes_to_int(header_hash) < diff
 
     def random_hash():
-        header['nonce'] = random.randint(0, 2 ** 256)
+        header['nonce'] += 1
         sign()
         return crypto.pickle_hash(header)
 
-    def mining_process(event, callback):
-        header_hash = random_hash()
-        threading.Thread(target=add_transactions, daemon=True).start()
-        threading.Thread(target=update_timestamp, daemon=True).start()
-        while not check_hash(header_hash):
+    def mining_process(event, callback, start: int, end: int):
+        try:
+            header['nonce'] = start
+            prev_timestamp = header['timestamp']
             header_hash = random_hash()
-        multiprocessing.Process(target=callback, args=(header,)).start()
-        event.set()
+            threading.Thread(target=add_transactions, daemon=True).start()
+            threading.Thread(target=update_timestamp, daemon=True).start()
+            while not check_hash(header_hash):
+                if header['nonce'] >= end:
+                    while header['timestamp'] == prev_timestamp:
+                        time.sleep(1e-3)
+                    prev_timestamp = header['timestamp']
+                    header['nonce'] = start
+                header_hash = random_hash()
+            multiprocessing.Process(target=callback, args=(header,)).start()
+            event.set()
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
 
     def mining_handler(callback, threads):
-        found_block = multiprocessing.Event()
-        processes = [multiprocessing.Process(target=mining_process,
-                                             args=(found_block, callback))
-                     for _ in range(threads)]
-        any(proc.start() for proc in processes)
-        while not found_block.wait(1e-3) and interface.block_height() <= block_index:
-            time.sleep(1e-3)
-        any(proc.terminate() for proc in processes)
-        any(proc.join() for proc in processes)
+        try:
+            found_block = multiprocessing.Event()
+            individual_end = nonce_maximum / threads
+            processes = [multiprocessing.Process(target=mining_process,
+                                                 args=(found_block, callback,
+                                                       int(individual_end * idx),
+                                                       int(individual_end * (idx + 1))))
+                         for idx in range(threads)]
+            any(proc.start() for proc in processes)
+            while not found_block.wait(
+                    1e-3) and interface.block_height() <= block_index:
+                time.sleep(1e-3)
+            any(proc.terminate() for proc in processes)
+            any(proc.join() for proc in processes)
+        except Exception as exc:
+            import traceback
+            traceback.print_exc()
 
     def mine(state, callback=None, threads=16):
         mining[0] = state
@@ -139,6 +158,8 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
         if not check_hash(crypto.pickle_hash(header)):
             print("H1")
             return False
+        if header['nonce'] > nonce_maximum:
+            return False
         header['signature'] = None
         if not verifier(crypto.pickle_hash(header), signature):
             header['signature'] = signature
@@ -149,6 +170,7 @@ def block(block_index, wallet, transactions: list, difficulty, block_previous,
             if not isinstance(tx, dict):
                 raise UserWarning
             if not transaction(**tx)[1]():
+                print("H3")
                 return False
         return True
 
@@ -180,7 +202,7 @@ def block_at_index(block_index, wallet, transactions: list, timestamp=None, nonc
                    signature=None, private_key=None, **kwargs):
     return block(block_index, wallet, transactions,
                  interface.difficulty_at_index(block_index),
-                 interface.block_hash_at_index(int(block_index)-1), timestamp, nonce,
+                 interface.block_hash_at_index(int(block_index) - 1), timestamp, nonce,
                  signature,
                  private_key)
 

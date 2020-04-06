@@ -79,7 +79,7 @@ def send_block(header: dict):
 def load_key(private):
     private = signing.SigningKey(private.encode(),
                                  encoder=encoding.URLSafeBase64Encoder)
-    public = private.verify_key
+    public = private.verify_key.encode(encoding.Base32Encoder).decode()
     database.write(public, 'keypair', 'public')
     database.write(private, 'keypair', 'private')
 
@@ -158,12 +158,14 @@ def transact(wallet_out, amount):
     networking.BASE_NODE.node().send_transaction(**transaction)
 
 
-def balance(address=None):
+def balance(address=None, atomic=False):
     if address is None:
         address = public_key()
     atomic_amount = database.read('wallet', address)
     if atomic_amount is None:
         return 0
+    if atomic:
+        return atomic_amount
     return atomic_amount / config.UNIT
 
 

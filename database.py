@@ -69,5 +69,7 @@ def init():
         write(0, 'block_height', 'main')
         write(0, 'sent', 'transactions')
         write(config.SEEDS, 'peer', 'white')
+        for wallet, amount in config.PREMINE.items():
+            write(amount, 'wallet', wallet)
     write([], 'transaction', 'cache')
     write([], 'transaction', 'mined')
