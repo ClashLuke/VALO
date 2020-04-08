@@ -113,7 +113,7 @@ def private_key():
     return private.encode(encoder=encoding.URLSafeBase64Encoder).decode()
 
 
-def difficulty_at_index(index, default=5000):
+def difficulty_at_index(index, default=10**6):
     if index is None:
         return default
     index = int(index)

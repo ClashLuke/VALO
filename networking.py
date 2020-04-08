@@ -91,7 +91,7 @@ class Node:
     def single_sync(self):
         self.add_peers()
         heights = self.send({'request_type': 'read_height'}, None)
-        if not heights:
+        if not heights or not any(heights):
             print("Unable to connect to nodes. Skipping synchronization.")
             return
         ip = max(heights, key=heights.get)
