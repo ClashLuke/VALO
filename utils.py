@@ -11,10 +11,10 @@ def bytes_to_int(bytes_obj: bytes):
 def next_difficulty(timestamps: list, target_difficulties: list):
     # Zawy's LWMA difficulty algorithm
     adjustment_factor = int((config.LWMA_WINDOW + 1) * (
-            0.998 ** (500 / config.LWMA_WINDOW)) * config.BLOCK_TIME / 2)
+                0.998 ** (500 / config.LWMA_WINDOW)) * config.BLOCK_TIME / 2)
     target_sum = sum(target_difficulties[1:])
-    solve_time_lwma = sum(
-            (timestamps[i] - time) * i for i, time in enumerate(timestamps, 1))
+    solve_time_lwma = sum((timestamps[i] - timestamps[i - 1]
+                           ) * i for i in range(1, 1 + config.LWMA_WINDOW))
     # Keep target reasonable in case strange solvetimes occurred.
     if solve_time_lwma < config.BLOCK_TIME * adjustment_factor // 3:
         solve_time_lwma = config.BLOCK_TIME * adjustment_factor // 3
