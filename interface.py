@@ -1,5 +1,4 @@
 import threading
-
 from nacl import encoding, signing
 
 import config
@@ -31,11 +30,14 @@ def reverse_hashes():
     return (block_hash_at_index(idx - 1) for idx in range(block_height(), 0, -1))
 
 
-def read_block(block_index):
+def read_block(block_index, return_hash=False):
     block_hash = block_hash_at_index(block_index)
     if block_hash is None:
         return None
-    return database.read('block', block_hash)
+    block = database.read('block', block_hash)
+    if return_hash:
+        return block, block_hash
+    return block
 
 
 def read_transaction(transaction_hash):
@@ -52,9 +54,9 @@ def store_block(*args, ip=False, at_index=False, resolve=True, **kwargs):
         return value
 
 
-def add_mean_block_size(block_size):
+def add_mean_block_size(block_size, factor=3, divisor=4):
     old_mean = database.read('block_size', 'mean')
-    new_mean = (3 * old_mean + block_size) / 4
+    new_mean = (factor * old_mean + block_size) / divisor
     database.write(new_mean, 'block_size', 'mean')
     return old_mean
 
@@ -113,7 +115,7 @@ def private_key():
     return private.encode(encoder=encoding.URLSafeBase64Encoder).decode()
 
 
-def difficulty_at_index(index, default=10**6):
+def difficulty_at_index(index, default=10 ** 6):
     if index is None:
         return default
     index = int(index)
@@ -178,14 +180,32 @@ def handle_split(ip):
     split = networking.BASE_NODE.node().get_split(ip, skip)
     old_blocks = []
     index = own_height - split - 1
-    while (old_blocks.append(read_block(index)) is None and
-           store_block(at_index=True, resolve=False,
-                       **networking.BASE_NODE.node().request_block(index,
-                                                                   ip)) is not False):
+    for idx in range(index, own_height):
+        old_blocks.append(read_block(idx))
+        undo_block(idx)
+    while store_block(at_index=True, resolve=False,
+                      **networking.BASE_NODE.node().request_block(index,
+                                                                  ip)) is not False:
         index += 1
     if index >= own_height:
         return
+
     for block in old_blocks:
         if block is None:
             break
         store_block(at_index=True, resolve=False, **block)
+
+
+def undo_block(block_index):
+    block, block_hash = read_block(block_index, True)
+    block_size = sys.getsizeof(pickle.dumps(block, protocol=4))
+    _ = add_mean_block_size(-block_size, 4, 3)
+    old_mean = database.read('block_size', 'mean')
+    reward = config.reward_function(block_index, block_size, old_mean)
+    database.sub('wallet', block['wallet'], reward)
+    database.sub('block_height', 'main', 1)
+    database.write('block', block_hash, {})
+
+
+def undo_top_block():
+    return undo_block(block_height() - 1)
