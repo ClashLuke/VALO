@@ -23,8 +23,7 @@ allows for higher performance, even though the limitations of python apply.
 - [ ] Currently the networking uses jsonpickle for dictionary objects. Writing **custom 
 binary encodings** for the two datatypes will further improve the performance.
 - [x] Everything is currently written in **Python**, allowing for easy contribution.
-- [ ] A **rewrite into V** is targeted to take place once low-level networking and
-cryptography libraries exist.
+- [ ] A **rewrite into Nim/Rust** is targeted to take place once the basic functionality of the python-baseline stands and cross-client communication can be tested.
 - [ ] The ultimate goal is distributing jobs across a **trustless kubernetes cluster**,
 essentially using the kubernetes protocol as a smart contract layer.
 - [ ] **Voting** for foreign nodes should be allowed, to enable offline users to use
